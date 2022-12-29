@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "MPU6050.h"
+#include "Common.h"
 #include "pico/stdlib.h"
 
 int main()
@@ -24,14 +25,18 @@ int main()
 		}
 	}
 
+	uint32_t timer = 0;
+	imu.calcGyroOffsets();	// Tries to reduce z inclination drift while leaving x and y inclination absolute
+
 	while (true)
 	{
 		imu.update();
 
-		printf("%d %d %d\n",
-			imu.accel().x, imu.accel().y, imu.accel().z);
-
-		//sleep_ms(100);
+		if ((millis() - timer) > 10)
+		{
+			printf("%f %f %f\n", imu.inclination().x, imu.inclination().y, imu.inclination().z);
+			timer = millis();
+		}
 	}
 
 	return 0;

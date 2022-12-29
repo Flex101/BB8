@@ -15,7 +15,7 @@ set(PICO_BOARD pico CACHE STRING "Board type")
 include(pico_sdk_import.cmake)
 
 if (PICO_SDK_VERSION_STRING VERSION_LESS "1.4.0")
-  message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.4.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
+	message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.4.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
 endif()
 
 project(BB-8_Dome_Actuation C CXX ASM)
@@ -24,12 +24,13 @@ project(BB-8_Dome_Actuation C CXX ASM)
 pico_sdk_init()
 
 set(${PROJECT_NAME}_HDR
-  include/MPU6050.h
+	include/Common.h
+	include/MPU6050.h
 )
 
 set(${PROJECT_NAME}_SRC
-  main.cpp
-  src/MPU6050.cpp
+	main.cpp
+	src/MPU6050.cpp
 )
 
 # Add executable. Default name is the project name, version 0.1
@@ -43,16 +44,16 @@ pico_enable_stdio_usb(${PROJECT_NAME} 1)
 
 # Add the standard library to the build
 target_link_libraries(${PROJECT_NAME}
-  pico_stdlib
-  hardware_i2c
+	pico_stdlib
+	hardware_i2c
 )
 
 # Add the standard include files to the build
 target_include_directories(${PROJECT_NAME}
-  PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}
-    ${CMAKE_CURRENT_LIST_DIR}/include
-    ${CMAKE_CURRENT_LIST_DIR}/.. # for our common lwipopts or any other standard includes, if required
+	PRIVATE
+	${CMAKE_CURRENT_LIST_DIR}
+	${CMAKE_CURRENT_LIST_DIR}/include
+	${CMAKE_CURRENT_LIST_DIR}/.. # for our common lwipopts or any other standard includes, if required
 )
 
 pico_add_extra_outputs(${PROJECT_NAME})
