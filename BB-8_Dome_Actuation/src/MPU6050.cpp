@@ -2,6 +2,7 @@
 #include "Common.h"
 #include "hardware/i2c.h"
 #include "math.h"
+#include <stdio.h>
 
 /* Wrap an angle in the range [-limit,+limit] (special thanks to Edgar Bonet!) */
 static float wrap(float angle, float limit)
@@ -13,27 +14,34 @@ static float wrap(float angle, float limit)
 
 MPU6050::MPU6050()
 {
+	inclinationFrame.x = 0.0;
+	inclinationFrame.y = 0.0;
+	inclinationFrame.z = 0.0;
+
 	setFilterGyroCoef(DEFAULT_GYRO_COEFF);
 	setGyroOffsets(0,0,0);
 	setAccelOffsets(0,0,0);
 }
 
-byte MPU6050::init(int gyro_config, int accel_config)
+byte MPU6050::init(byte dev_addr, bool init_i2c, int gyro_config, int accel_config)
 {
-	i2c_init(i2c_default, 400 * 1000);
-	gpio_set_function(IMU_SDA, GPIO_FUNC_I2C);
- 	gpio_set_function(IMU_SCL, GPIO_FUNC_I2C);
- 	gpio_pull_up(IMU_SDA);
- 	gpio_pull_up(IMU_SCL);
-	reset();
+	if (init_i2c)
+	{
+		i2c_init(i2c_default, 400 * 1000);
+		gpio_set_function(IMU_SDA, GPIO_FUNC_I2C);
+		gpio_set_function(IMU_SCL, GPIO_FUNC_I2C);
+		gpio_pull_up(IMU_SDA);
+		gpio_pull_up(IMU_SCL);
+	}
 
+	devAddr = dev_addr;
+	reset();
 	setGyroConfig(gyro_config);
 	setAccelConfig(accel_config);
 
 	update();
 	inclinationFrame.x = angleAccelFrame.x;
 	inclinationFrame.y = angleAccelFrame.y;
-	inclinationFrame.z = 0.0;
 	preInterval = millis();
 	
 	return false;
@@ -75,9 +83,9 @@ void MPU6050::calcOffsets(bool calc_gyro, bool calc_accel)
 bool MPU6050::test()
 {
 	byte buf;
-	i2c_write_blocking(i2c_default, DEV_ADDR, &REG_DEV_ID, 1, true); 
-	i2c_read_blocking(i2c_default, DEV_ADDR, &buf, 1, false);
-	return (buf == DEV_ID);
+	i2c_write_blocking(i2c_default, devAddr, &REG_DEV_ID, 1, true); 
+	i2c_read_blocking(i2c_default, devAddr, &buf, 1, false);
+	return (buf == IMU_ID);
 }
 
 byte MPU6050::setGyroConfig(int config_num)
@@ -110,7 +118,7 @@ byte MPU6050::setGyroConfig(int config_num)
 			return 1;
 	}
 
-	return i2c_write_blocking(i2c_default, DEV_ADDR, msg, 2, true); 
+	return i2c_write_blocking(i2c_default, devAddr, msg, 2, true); 
 }
 
 byte MPU6050::setAccelConfig(int config_num)
@@ -143,7 +151,7 @@ byte MPU6050::setAccelConfig(int config_num)
 			return 1;
 	}
 
-	return i2c_write_blocking(i2c_default, DEV_ADDR, msg, 2, true);
+	return i2c_write_blocking(i2c_default, devAddr, msg, 2, true);
 }
 
 void MPU6050::setGyroOffsets(float x, float y, float z)
@@ -192,8 +200,8 @@ void MPU6050::update()
 
 void MPU6050::fetchData()
 {
-	i2c_write_blocking(i2c_default, DEV_ADDR, &REG_DATA, 1, true);
-	i2c_read_blocking(i2c_default, DEV_ADDR, buffer, REG_DATA_LEN, false);
+	i2c_write_blocking(i2c_default, devAddr, &REG_DATA, 1, true);
+	i2c_read_blocking(i2c_default, devAddr, buffer, REG_DATA_LEN, false);
 
 	rawAccelFrame.x = buffer[ 0]<<8 | buffer[ 1];
 	rawAccelFrame.y = buffer[ 2]<<8 | buffer[ 3];
@@ -213,5 +221,5 @@ void MPU6050::fetchData()
 void MPU6050::reset()
 {
 	byte msg[] = {REG_PWR_MGMT_1, 0x00};
- 	i2c_write_blocking(i2c_default, DEV_ADDR, msg, 2, false);
+ 	i2c_write_blocking(i2c_default, devAddr, msg, 2, false);
 }

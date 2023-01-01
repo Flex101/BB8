@@ -1,6 +1,6 @@
+#pragma once
 #include "pico/stdlib.h"
-
-using byte = uint8_t;
+#include "Common.h"
 
 struct RawFrame
 {
@@ -24,7 +24,7 @@ public:
 	explicit MPU6050();
 	virtual ~MPU6050() {}
 
-	byte init(int gyro_config = 1, int accel_config = 0);
+	byte init(byte dev_addr = 0x68, bool init_i2c = true, int gyro_config = 1, int accel_config = 0);
 	void calcOffsets(bool calc_gyro = true, bool calc_accel = true);
 	void calcGyroOffsets() { calcOffsets(true,false); }
 	void calcAccOffsets()  { calcOffsets(false,true); }
@@ -47,8 +47,7 @@ private:
 	void reset();
 
 private:
-	const byte DEV_ADDR         = 0x68;
-	const byte DEV_ID           = 0x68;
+	const byte IMU_ID           = 0x68; // Doesn't change with address
 	const byte IMU_SDA          = 16;
 	const byte IMU_SCL          = 17;
 	const byte REG_DEV_ID       = 0x75;
@@ -67,6 +66,7 @@ private:
 	float accelToG;
 	float filterGyroCoef; // complementary filter coefficient to balance gyro vs accelero data to get angle
 
+	byte devAddr;
 	uint32_t preInterval;
 	byte buffer[14];
 	RawFrame rawGyroFrame;
