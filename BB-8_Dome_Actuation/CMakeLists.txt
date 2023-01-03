@@ -26,11 +26,13 @@ pico_sdk_init()
 set(${PROJECT_NAME}_HDR
 	include/Common.h
 	include/MPU6050.h
+	include/DomeMixer.h
 )
 
 set(${PROJECT_NAME}_SRC
-	main.cpp
+	src/main.cpp
 	src/MPU6050.cpp
+	src/DomeMixer.cpp
 )
 
 # Add executable. Default name is the project name, version 0.1

@@ -23,5 +23,10 @@
 	"includePath": [
 		"${fileWorkspaceFolder}/include",
 		"/home/matthew/RaspPi_Pico/pico-sdk/src/rp2_common/hardware_i2c"
-	]
+	],
+	"files.associations": {
+		"memory": "cpp",
+		"random": "cpp",
+		"optional": "cpp"
+	}
 }

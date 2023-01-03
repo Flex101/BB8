@@ -1,5 +1,4 @@
 #pragma once
-#include "pico/stdlib.h"
 #include "Common.h"
 
 struct RawFrame
@@ -9,25 +8,14 @@ struct RawFrame
 	int16_t z;
 };
 
-struct Frame
-{
-	float x;
-	float y;
-	float z;
-};
-
 class MPU6050
 {
-public:
-
 public:
 	explicit MPU6050();
 	virtual ~MPU6050() {}
 
 	byte init(byte dev_addr = 0x68, bool init_i2c = true, int gyro_config = 1, int accel_config = 0);
-	void calcOffsets(bool calc_gyro = true, bool calc_accel = true);
-	void calcGyroOffsets() { calcOffsets(true,false); }
-	void calcAccOffsets()  { calcOffsets(false,true); }
+	void calcOffsets(bool accel_x = true, bool accel_y = true, bool accel_z = true, bool gyro_x = true, bool gyro_y = true, bool gyro_z = true);
 
 	bool test();
 	byte setGyroConfig(int config_num);
@@ -44,7 +32,7 @@ public:
 
 private:
 	void fetchData();
-	void reset();
+	void resetImu();
 
 private:
 	const byte IMU_ID           = 0x68; // Doesn't change with address
