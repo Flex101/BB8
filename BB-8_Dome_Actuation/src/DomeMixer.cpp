@@ -6,7 +6,9 @@ using namespace BB8;
 DomeMixer::DomeMixer(MPU6050& _imuDome, MPU6050& _imuBase) :
 	imuDome(_imuDome), imuBase(_imuBase)
 {
-
+	domeToBaseOffsets.x = 0;
+	domeToBaseOffsets.y = 0;
+	domeToBaseOffsets.z = 0;
 }
 
 void DomeMixer::update()
@@ -24,7 +26,14 @@ void DomeMixer::update()
 	baseFrame.y = -imuBase.inclination().x;
 	baseFrame.z =  mixedZ;
 
-	domeToBaseFrame.x = domeFrame.x - baseFrame.x;
-	domeToBaseFrame.y = domeFrame.y - baseFrame.y;
-	domeToBaseFrame.z = domeFrame.z - baseFrame.z;
+	domeToBaseFrame.x = (domeFrame.x - baseFrame.x) + domeToBaseOffsets.x;
+	domeToBaseFrame.y = (domeFrame.y - baseFrame.y) + domeToBaseOffsets.y;
+	domeToBaseFrame.z = (domeFrame.z - baseFrame.z) + domeToBaseOffsets.z;
+}
+
+void BB8::DomeMixer::setDomeToBaseOffsets(float x, float y, float z)
+{
+	domeToBaseOffsets.x = x;
+	domeToBaseOffsets.y = y;
+	domeToBaseOffsets.z = z;
 }

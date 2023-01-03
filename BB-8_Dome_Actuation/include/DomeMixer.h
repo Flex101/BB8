@@ -14,6 +14,7 @@ public:
 
 	void init();
 	void update();
+	void setDomeToBaseOffsets(float x, float y, float z);
 
 	const Frame& dome()       { return domeFrame; }
 	const Frame& domeToBase() { return domeToBaseFrame; }
@@ -24,8 +25,10 @@ private:
 	MPU6050& imuBase;
 
 	Frame domeFrame;
-	Frame domeToBaseFrame;
 	Frame baseFrame;
+
+	Frame domeToBaseOffsets;
+	Frame domeToBaseFrame;
 };
 
 } // namespace BB8

@@ -43,6 +43,7 @@ int main()
 	imuBase.calcOffsets(false, false, true, true, true, true);	// Tries to reduce z inclination drift while leaving x and y inclination relative to gravity
 
 	BB8::DomeMixer domeMixer(imuDome, imuBase);
+	domeMixer.setDomeToBaseOffsets(-2.5, 1.6, 0); // Fudge offset in mounting
 
 	uint32_t timer = 0;
 	while (true)
