@@ -23,16 +23,20 @@ project(BB-8_Dome_Actuation C CXX ASM)
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/externals/Pico-Servo-main/servo)
+
 set(${PROJECT_NAME}_HDR
 	include/Common.h
 	include/MPU6050.h
 	include/DomeMixer.h
+	include/Servo.h
 )
 
 set(${PROJECT_NAME}_SRC
 	src/main.cpp
 	src/MPU6050.cpp
 	src/DomeMixer.cpp
+	src/Servo.cpp
 )
 
 # Add executable. Default name is the project name, version 0.1
@@ -44,13 +48,14 @@ pico_set_program_version(${PROJECT_NAME} "0.1")
 pico_enable_stdio_uart(${PROJECT_NAME} 1)
 pico_enable_stdio_usb(${PROJECT_NAME} 1)
 
-# Add the standard library to the build
 target_link_libraries(${PROJECT_NAME}
 	pico_stdlib
 	hardware_i2c
+	hardware_pwm
+	hardware_clocks
+	pico_servo_object
 )
 
-# Add the standard include files to the build
 target_include_directories(${PROJECT_NAME}
 	PRIVATE
 	${CMAKE_CURRENT_LIST_DIR}

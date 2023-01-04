@@ -27,6 +27,18 @@
 	"files.associations": {
 		"memory": "cpp",
 		"random": "cpp",
-		"optional": "cpp"
+		"optional": "cpp",
+		"new": "cpp",
+		"algorithm": "cpp",
+		"*.tcc": "cpp",
+		"fstream": "cpp",
+		"numeric": "cpp",
+		"system_error": "cpp",
+		"istream": "cpp",
+		"limits": "cpp",
+		"ostream": "cpp",
+		"stdexcept": "cpp",
+		"streambuf": "cpp",
+		"functional": "cpp"
 	}
 }
