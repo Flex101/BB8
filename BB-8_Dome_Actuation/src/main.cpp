@@ -1,9 +1,10 @@
-#include <stdio.h>
 #include "DomeMixer.h"
 #include "Servo.h"
 #include "MPU6050.h"
 #include "Common.h"
 #include <string>
+#include <math.h>
+#include <stdio.h>
 
 const byte IMU_DOME_ID = 0x69;
 const byte IMU_BASE_ID = 0x68;
@@ -36,16 +37,23 @@ int main()
 	servoLr.setPosRange(1150,1600);
 	servoLr.setPosHome(1375);
 
-	servoLr.home();
+	Servo servoFb(SERVO_FB_PIN);
+	servoFb.setPosRange(1300,1650);
+	servoFb.setPosHome(1475);
+
+	servoFb.goToHome();
+	servoLr.goToHome();
 	sleep_ms(2000);
-	servoLr.min();
-	sleep_ms(2000);
-	servoLr.home();
-	sleep_ms(2000);
-	servoLr.max();
-	sleep_ms(2000);
-	servoLr.home();
-	sleep_ms(2000);
+
+	uint32_t duration = 5000;
+	while(true)
+	{
+		float progress = float(millis() % duration) / duration;
+		uint posFb = servoFb.goToScaledPos(sin(2 * PI * progress));
+		uint posLr = servoLr.goToScaledPos(cos(2 * PI * progress));
+
+		printf("%f %d %d\n", progress, posFb, posLr);
+	}
 
 	MPU6050 imuDome;
 	imuDome.init(IMU_DOME_ID);

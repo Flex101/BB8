@@ -1,4 +1,5 @@
 #include "Servo.h"
+#include <stdio.h>
 
 extern "C" {
 	#include "externals/Pico-Servo-main/servo/servo.h"
@@ -23,24 +24,43 @@ void Servo::setPosHome(uint _posHome)
 	posHome = _posHome;
 }
 
-void Servo::setPos(uint pos)
+void Servo::goToMin()
+{
+	goToPos(posMin);
+}
+
+void Servo::goToHome()
+{
+	goToPos(posHome);
+}
+
+void Servo::goToMax()
+{
+	goToPos(posMax);
+}
+
+void Servo::goToPos(uint pos)
 {
 	if (pos < posMin) pos = posMin;
 	if (pos > posMax) pos = posMax;
 	setMicroseconds(pin, pos);
 }
 
-void Servo::min()
+uint Servo::goToScaledPos(float scaledPos)
 {
-	setPos(posMin);
-}
+	uint pos;
 
-void Servo::home()
-{
-	setPos(posHome);
-}
+	if (scaledPos < 0.0)
+	{
+		// Negative values are scaled between posMin and posHome
+		pos = posHome - ((posHome - posMin) * -scaledPos);
+	}
+	else
+	{
+		// Positive values are scaled between posHome and posMax
+		pos = posHome + ((posMax - posHome) * scaledPos);
+	}
 
-void Servo::max()
-{
-	setPos(posMax);
+	goToPos(pos);
+	return pos;
 }

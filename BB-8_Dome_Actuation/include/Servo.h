@@ -9,11 +9,12 @@ public:
 
 	void setPosRange(uint posMin, uint posMax);
 	void setPosHome(uint posHome);
-	void setPos(uint pos);
-
-	void min();
-	void home();
-	void max();
+	
+	void goToMin();
+	void goToHome();
+	void goToMax();
+	void goToPos(uint pos);
+	uint goToScaledPos(float scaledPos);
 
 private:
 	uint posMin;
