@@ -16,3 +16,11 @@ struct Frame
 	float y;
 	float z;
 };
+
+static void finish()
+{
+	while(true)
+	{
+		sleep_ms(100);
+	}
+}

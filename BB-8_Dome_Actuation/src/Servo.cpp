@@ -64,3 +64,18 @@ uint Servo::goToScaledPos(float scaledPos)
 	goToPos(pos);
 	return pos;
 }
+
+uint Servo::getMin() const
+{
+	return posMin;
+}
+
+uint Servo::getHome() const
+{
+	return posHome;
+}
+
+uint Servo::getMax() const
+{
+	return posMax;
+}

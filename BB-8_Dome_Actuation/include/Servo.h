@@ -16,6 +16,10 @@ public:
 	void goToPos(uint pos);
 	uint goToScaledPos(float scaledPos);
 
+	uint getMin() const;
+	uint getHome() const;
+	uint getMax() const;
+
 private:
 	uint posMin;
 	uint posMax;
