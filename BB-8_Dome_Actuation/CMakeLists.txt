@@ -33,6 +33,7 @@ set(${PROJECT_NAME}_HDR
 	include/Calibration.h
 	include/Control.h
 	include/Mapping.h
+	include/Easings.h
 )
 
 set(${PROJECT_NAME}_SRC

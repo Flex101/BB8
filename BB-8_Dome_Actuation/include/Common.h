@@ -1,5 +1,6 @@
 #pragma once
 #include "pico/stdlib.h"
+#include "math.h"
 
 using byte = uint8_t;
 
@@ -48,6 +49,41 @@ private:
 	float max;
 	float variance;
 	float average;
+};
+
+static float matchSign(const float& value, const float& matchTo)
+{
+	return value * (matchTo / fabs(matchTo));
+}
+
+class PID
+{
+public:
+	// max - maximum value of manipulated variable
+	// min - minimum value of manipulated variable
+	// kp  - proportional gain
+	// kd  - derivative gain
+	// ki  - integral gain
+	explicit PID();
+	virtual ~PID() {}
+
+	void init(double max, double min, double kp, double kd, double ki);
+	bool isInit() const;
+
+	// setpoint - demand value
+	// actual   - actual value
+	// dt       - delta time since last call
+	double calc(double setpoint, double actual, double dt);
+
+private:
+	bool initFlag;
+	double max;
+	double min;
+	double kp;
+	double kd;
+	double ki;
+	double prevError;
+	double integral;
 };
 
 namespace BB8

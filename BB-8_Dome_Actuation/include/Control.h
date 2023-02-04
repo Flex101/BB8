@@ -23,7 +23,7 @@ namespace BB8
 		float getCalcDemand(Direction direction);
 
 	private:
-		void bangBang(const float& demand, const float& actual, Servo& servo, Mapping& mapping, bool& holding);
+		void bangBang(const float& demand, const float& actual, Servo& servo, Mapping& mapping, PID& pid);
 
 	private:
 		Servo& servoFb;
@@ -36,11 +36,10 @@ namespace BB8
 		float demandFb;
 		float demandLr;
 
-		float calcDemandFb;
-		float calcDemandLr;
+		PID pidFb;
+		PID pidLr;
 
-		bool holdingFb;
-		bool holdingLr;
+		uint32_t prevCalc;
 	};
 
 } // namespace BB8
