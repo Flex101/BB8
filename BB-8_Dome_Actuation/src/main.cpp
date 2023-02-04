@@ -1,3 +1,4 @@
+#include "Control.h"
 #include "Calibration.h"
 #include "DomeMixer.h"
 #include "Servo.h"
@@ -61,23 +62,60 @@ int main()
 	BB8::DomeMixer domeMixer(imuDome, imuBase);
 	domeMixer.setDomeToBaseOffsets(-2.5, 2.5, 0); // Fudge offset in mounting
 
+	/*
 	BB8::Calibration calibration(servoFb, servoLr, domeMixer);
 	calibration.mapAxis(BB8::Direction::FB);
+	calibration.mapAxis(BB8::Direction::LR);
+	*/
 
-	// uint32_t timer = 0;
-	// while (true)
-	// {
-	// 	domeMixer.update();
+	BB8::Control control(servoFb, servoLr, domeMixer);
 
-	// 	if ((millis() - timer) > 10)
-	// 	{
-	// 		printf("%f %f %f %f %f %f %f %f %f\n",
-	// 			   domeMixer.dome().x, domeMixer.dome().y, domeMixer.dome().z,
-	// 			   domeMixer.base().x, domeMixer.base().y, domeMixer.base().z,
-	// 			   domeMixer.domeToBase().x, domeMixer.domeToBase().y, domeMixer.domeToBase().z);
-	// 		timer = millis();
-	// 	}
-	// }
+	const float demands[] = {0, 10, -10, 20, -20, 10, -10 , 0,  0};
+	const uint demandLen = 9;
+
+	uint32_t outputTimer = millis();
+	uint32_t demandTimer = millis();
+	uint index = 0;
+	bool hold = false;
+	while(index < (demandLen - 1))
+	{
+		control.spin();
+		
+		if ((millis() - demandTimer) > 5000)
+		{
+			index = (index + 1) % demandLen;
+			control.setDemand(BB8::Direction::LR, demands[index]);
+			demandTimer = millis();
+			hold = false;
+		}
+
+		if ((millis() - outputTimer) > 10)
+		{
+			printf("%f %f %f \n",
+				demands[index],
+				control.getCalcDemand(BB8::Direction::LR),
+				domeMixer.domeToBase().x
+			);
+			outputTimer = millis();
+		}
+	}
+
+	/*
+	uint32_t timer = 0;
+	while (true)
+	{
+		domeMixer.update();
+
+		if ((millis() - timer) > 10)
+		{
+			printf("%f %f %f %f %f %f %f %f %f\n",
+				   domeMixer.dome().x, domeMixer.dome().y, domeMixer.dome().z,
+				   domeMixer.base().x, domeMixer.base().y, domeMixer.base().z,
+				   domeMixer.domeToBase().x, domeMixer.domeToBase().y, domeMixer.domeToBase().z);
+			timer = millis();
+		}
+	}
+	*/
 
 	finish();
 	return 0;

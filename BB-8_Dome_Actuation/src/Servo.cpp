@@ -39,8 +39,9 @@ void Servo::goToMax()
 	goToPos(posMax);
 }
 
-void Servo::goToPos(uint pos)
+void Servo::goToPos(uint _pos)
 {
+	pos = _pos;
 	if (pos < posMin) pos = posMin;
 	if (pos > posMax) pos = posMax;
 	setMicroseconds(pin, pos);
@@ -48,20 +49,20 @@ void Servo::goToPos(uint pos)
 
 uint Servo::goToScaledPos(float scaledPos)
 {
-	uint pos;
+	uint _pos;
 
 	if (scaledPos < 0.0)
 	{
 		// Negative values are scaled between posMin and posHome
-		pos = posHome - ((posHome - posMin) * -scaledPos);
+		_pos = posHome - ((posHome - posMin) * -scaledPos);
 	}
 	else
 	{
 		// Positive values are scaled between posHome and posMax
-		pos = posHome + ((posMax - posHome) * scaledPos);
+		_pos = posHome + ((posMax - posHome) * scaledPos);
 	}
 
-	goToPos(pos);
+	goToPos(_pos);
 	return pos;
 }
 
@@ -78,4 +79,17 @@ uint Servo::getHome() const
 uint Servo::getMax() const
 {
 	return posMax;
+}
+
+uint Servo::getPos() const
+{
+	return pos;
+}
+
+float Servo::getScaledPos() const
+{
+	if (pos > posHome)
+		return float(pos - posHome) / (posMax - posHome);
+	else
+		return -(float(posHome - pos) / (posHome - posMin));
 }

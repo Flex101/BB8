@@ -19,10 +19,13 @@ public:
 	uint getMin() const;
 	uint getHome() const;
 	uint getMax() const;
+	uint getPos() const;
+	float getScaledPos() const;
 
 private:
 	uint posMin;
 	uint posMax;
 	uint posHome;
 	uint pin;
+	uint pos;
 };

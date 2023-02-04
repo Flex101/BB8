@@ -31,14 +31,19 @@ set(${PROJECT_NAME}_HDR
 	include/DomeMixer.h
 	include/Servo.h
 	include/Calibration.h
+	include/Control.h
+	include/Mapping.h
 )
 
 set(${PROJECT_NAME}_SRC
 	src/main.cpp
+	src/Common.cpp
 	src/MPU6050.cpp
 	src/DomeMixer.cpp
 	src/Servo.cpp
 	src/Calibration.cpp
+	src/Control.cpp
+	src/Mapping.cpp
 )
 
 # Add executable. Default name is the project name, version 0.1

@@ -6,51 +6,6 @@
 
 using namespace BB8;
 
-RunningAverage::RunningAverage(uint _length)
-{
-	length = _length;
-	values = new float[length];
-
-	reset();
-}
-
-RunningAverage::~RunningAverage()
-{
-	delete values;
-}
-
-void RunningAverage::append(float value)
-{
-	values[(index++ % length)] = value;
-
-	if (isFull())
-	{
-		min = 360.0;
-		max = -360.00;
-		average = 0.00;
-
-		for (int i = 0; i < length; ++i)
-		{
-			if (values[i] < min) min = values[i];
-			if (values[i] > max) max = values[i];
-			average += values[i];
-		}
-
-		average = average / length;
-		variance = max - min;
-	}
-}
-
-bool RunningAverage::isFull() const
-{
-	return (index >= length);
-}
-
-void BB8::RunningAverage::reset()
-{
-	index = 0;
-}
-
 Calibration::Calibration(Servo& _servoFb, Servo& _servoLr, DomeMixer& _domeMixer) :
 	servoFb(_servoFb), servoLr(_servoLr), domeMixer(_domeMixer)
 {
@@ -152,10 +107,12 @@ void Calibration::mapAxis(Direction direction, uint increments)
 
 float Calibration::getStableValue(Direction direction)
 {
+	/*
 	printf("Waiting for ");
 	if (direction == Direction::FB) printf("FB ");
 	else if (direction == Direction::LR) printf("LR ");
 	printf("to stabilise...\n");
+	*/
 
 	const float stableTolerance = 0.2;
 	const uint stableDuration_ms = 1000;
