@@ -1,0 +1,46 @@
+{
+	// These settings tweaks to the cmake plugin will ensure
+	// that you debug using cortex-debug instead of trying to launch
+	// a Pico binary on the host
+	"cmake.statusbar.advanced": {
+		"debug": {
+			"visibility": "hidden"
+		},
+		"launch": {
+			"visibility": "hidden"
+		},
+		"build": {
+			"visibility": "hidden"
+		},
+		"buildTarget": {
+			"visibility": "hidden"
+		}
+	},
+	"cmake.buildBeforeRun": true,
+	"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+	"cmake.configureOnOpen": true,
+	"C_Cpp.errorSquiggles": "enabled",
+	"includePath": [
+		"${fileWorkspaceFolder}/include",
+		"/home/matthew/RaspPi_Pico/pico-sdk/src/rp2_common/hardware_i2c"
+	],
+	"files.associations": {
+		"memory": "cpp",
+		"random": "cpp",
+		"optional": "cpp",
+		"new": "cpp",
+		"algorithm": "cpp",
+		"*.tcc": "cpp",
+		"fstream": "cpp",
+		"numeric": "cpp",
+		"system_error": "cpp",
+		"istream": "cpp",
+		"limits": "cpp",
+		"ostream": "cpp",
+		"stdexcept": "cpp",
+		"streambuf": "cpp",
+		"functional": "cpp",
+		"string_view": "cpp",
+		"bit": "cpp"
+	}
+}
