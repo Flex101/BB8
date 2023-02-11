@@ -70,6 +70,55 @@ int main()
 
 	BB8::Control control(servoFb, servoLr, domeMixer);
 
+	servoFb.goToHome();
+	servoLr.goToHome();
+	sleep_ms(100);
+
+	uint32_t outputTimer = millis();
+	while(true)
+	{
+		control.setDemand(BB8::Direction::LR, -domeMixer.base().x);
+		control.setDemand(BB8::Direction::FB, -domeMixer.base().y);
+		control.spin();
+
+		if ((millis() - outputTimer) > 10)
+		{
+			printf("%f %f %f \n",
+				control.getDemand(BB8::Direction::LR),
+				control.getCalcDemand(BB8::Direction::LR),
+				domeMixer.domeToBase().x
+				//control.getDemand(BB8::Direction::FB),
+				//control.getCalcDemand(BB8::Direction::FB),
+				//domeMixer.domeToBase().y
+			);
+			outputTimer = millis();
+		}
+	}
+
+	uint32_t duration = 5000;
+	while(true)
+	{
+		float progress = float(millis() % duration) / duration;
+		float demand = cos(2.0 * PI * progress) * 30.0;
+
+		control.setDemand(BB8::Direction::LR, demand);
+		control.spin();
+
+		if ((millis() - outputTimer) > 10)
+		{
+			printf("%f %f %f \n",
+				demand,
+				control.getCalcDemand(BB8::Direction::LR),
+				domeMixer.domeToBase().x
+			);
+			outputTimer = millis();
+		}
+	}
+
+	finish();
+	return 0;
+
+	/*
 	const float demands[] = {0, 10, -10, 20, -20, 10, -10 , 0,  0};
 	const uint demandLen = 9;
 
@@ -99,6 +148,7 @@ int main()
 			outputTimer = millis();
 		}
 	}
+	*/
 
 	/*
 	uint32_t timer = 0;

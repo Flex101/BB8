@@ -15,15 +15,22 @@ Control::Control(Servo& _servoFb, Servo& _servoLr, DomeMixer& _domeMixer) :
 	demandFb(0.00f), demandLr(0.00f),
 	prevCalc(millis())
 {
-
+	const float maxPidOffset =  3.0f;
+	pidFb.init(maxPidOffset, -maxPidOffset, 0.01, 0.0, 0.0);
+	pidLr.init(maxPidOffset, -maxPidOffset, 0.01, 0.0, 0.0);
 }
 
 void Control::spin()
 {
 	domeMixer.update();
 
-	//bangBang(demandFb, domeMixer.domeToBase().y, servoFb, mappingFb);
-	bangBang(demandLr, domeMixer.domeToBase().x, servoLr, mappingLr, pidLr);
+	uint32_t t = millis();
+	uint32_t dt = t - prevCalc;
+
+	loop(demandFb, domeMixer.domeToBase().y, servoFb, mappingFb, pidFb, dt);
+	loop(demandLr, domeMixer.domeToBase().x, servoLr, mappingLr, pidLr, dt);
+
+	prevCalc = t;
 }
 
 void Control::setDemand(Direction direction, float angle)
@@ -62,44 +69,27 @@ float Control::getCalcDemand(Direction direction)
 	return 0.0;
 }
 
-void Control::bangBang(const float& demand, const float& actual, Servo& servo, Mapping& mapping, PID& pid)
+void Control::loop(const float& demand, const float& actual, Servo& servo, Mapping& mapping, PID& pid, uint32_t dt)
 {
 	const float inPosTol =       0.1f;
-	const float propZone =      20.0f;
-	const float maxPropOffset =  3.0f;
-	const float deadZone =       2.25f;
+	const float propZone =      30.0f;
 
-	if (!pid.isInit())
-	{
-		pid.init(maxPropOffset, -maxPropOffset, 0.65, 5.0, 0.0);
-	}
-
-	uint32_t t = millis();
-	uint32_t dt = t - prevCalc;
 	float error = demand - actual;
 	float errorMag = fabs(error);
 
-	// if (errorMag > propZone) // Bang-bang control
-	// {
-	// 	if (error > 0) servo.goToScaledPos(1.00f);
-	// 	else servo.goToScaledPos(-1.00f);
-	// }
-	// else 
-	// if (errorMag > inPosTol) // Proportional control
-	// {
-		
+	if (errorMag > propZone) // Bang-bang control
+	{
+		if (error > 0) servo.goToScaledPos(mapping.angleToServo(90));
+		else servo.goToScaledPos(mapping.angleToServo(-90));
+	}
+	else 
+	if (errorMag > inPosTol) // Proportional control
+	{		
 		float offset = pid.calc(demand, actual, dt);
-
-		//float range = (error / propZone);
-		//float offset = (Easings::linear(range) * maxPropOffset);
-		//if (fabs(offset) < deadZone) offset = matchSign(deadZone, offset);
-
 		servo.goToScaledPos(mapping.angleToServo(demand + offset));
-	// }
-	// else // Hold
-	// {
-	// 	servo.goToScaledPos(mapping.angleToServo(demand));
-	// }
-
-	prevCalc = t;
+	}
+	else // Hold
+	{
+		servo.goToScaledPos(mapping.angleToServo(demand));
+	}
 }
