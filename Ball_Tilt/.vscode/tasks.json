@@ -1,0 +1,30 @@
+{
+    "tasks": [
+        {
+            "label": "build",
+            "type": "cmake",
+            "command": "build"
+        },
+        {
+            "label": "Deploy to Pico",
+            "type": "shell",
+            "command": "/home/matthew/RaspPi_Pico/deploy2pico.sh",
+            "args": [
+                "--build-path", "${workspaceFolder}/build",
+                "--dev_path", "/dev/ttyACM0"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "showReuseMessage": false,
+                "panel": "dedicated",
+                "clear": true
+            },
+            "dependsOn": [
+                "build"
+            ]
+        }
+    ],
+    "version": "2.0.0"
+}
