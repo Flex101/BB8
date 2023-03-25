@@ -29,6 +29,7 @@ set(${PROJECT_NAME}_HDR
 	include/Common.h
 	include/Servo.h
 	include/Encoder.h
+	include/Pot.h
 )
 
 set(${PROJECT_NAME}_SRC
@@ -36,6 +37,7 @@ set(${PROJECT_NAME}_SRC
 	src/Common.cpp
 	src/Servo.cpp
 	src/Encoder.cpp
+	src/Pot.cpp
 )
 
 # Add executable. Default name is the project name, version 0.1
@@ -52,6 +54,7 @@ target_link_libraries(${PROJECT_NAME}
 	hardware_pwm
 	hardware_clocks
 	hardware_pio
+	hardware_adc
 	pico_servo_object
 )
 

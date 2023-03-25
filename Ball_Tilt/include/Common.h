@@ -4,6 +4,7 @@
 #include "hardware/sync.h"
 #include "hardware/structs/ioqspi.h"
 #include "hardware/structs/sio.h"
+#include "hardware/adc.h"
 #include "math.h"
 
 using byte = uint8_t;

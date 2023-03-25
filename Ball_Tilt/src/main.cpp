@@ -1,5 +1,6 @@
 #include "Servo.h"
 #include "Encoder.h"
+#include "Pot.h"
 #include "Common.h"
 #include <string>
 #include <math.h>
@@ -10,7 +11,7 @@ const uint MTR_IN1 = 10;
 const uint MTR_IN2 = 12;
 const uint ENC_A   =  0;
 const uint ENC_B   =  1;
-const uint LIN_POT = 26;
+const uint POT_ADC =  0;
 
 void abort(const char *msg)
 {
@@ -31,7 +32,7 @@ int main()
 	gpio_init(LED_PIN);
 	gpio_set_dir(LED_PIN, GPIO_OUT);
 	gpio_put(LED_PIN, 1);
-
+    
 	Servo mtr1(MTR_IN1);
 	mtr1.setPosRange(0,20000);
 	mtr1.setPosHome(0);
@@ -43,8 +44,18 @@ int main()
 	Encoder encoder(ENC_A, ENC_B);
 	encoder.init();
 
+	Pot pot(POT_ADC);
+	pot.init(3.3f, 0.011f, 3.299f);
+	pot.setSmoothing(50);
+
 	const uint dur = 10000;
 	uint inc = 0;
+
+	while(true)
+	{
+		pot.update();
+		printf("%d %f %f\n", pot.getRaw(), pot.getVoltage(), pot.getScale());
+	}
 
 	uint32_t outputTimer = millis();
 	while (true)
