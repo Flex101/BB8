@@ -30,6 +30,7 @@ set(${PROJECT_NAME}_HDR
 	include/Servo.h
 	include/Encoder.h
 	include/Pot.h
+	include/MotorDriver.h
 )
 
 set(${PROJECT_NAME}_SRC
@@ -38,6 +39,7 @@ set(${PROJECT_NAME}_SRC
 	src/Servo.cpp
 	src/Encoder.cpp
 	src/Pot.cpp
+	src/MotorDriver.cpp
 )
 
 # Add executable. Default name is the project name, version 0.1

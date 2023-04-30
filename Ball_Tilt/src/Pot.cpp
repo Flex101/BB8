@@ -1,8 +1,8 @@
 #include "Pot.h"
 
-Pot::Pot(uint _adcNum)
+Pot::Pot(uint _adcNum) : 
+	adcNum(_adcNum)
 {
-	adcNum = _adcNum;
 	average = nullptr;
 }
 
@@ -38,6 +38,12 @@ void Pot::update()
 {
 	raw = adc_read();
 	if (average != nullptr) average->append(raw);
+}
+
+bool Pot::isReady() const
+{
+	if (average == nullptr) return true;
+	return average->isFull();
 }
 
 uint16_t Pot::getRaw() const

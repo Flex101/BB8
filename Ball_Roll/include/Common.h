@@ -59,14 +59,14 @@ static float matchSign(const float& value, const float& matchTo)
 class PID
 {
 public:
+	explicit PID();
+	virtual ~PID() {}
+
 	// max - maximum value of manipulated variable
 	// min - minimum value of manipulated variable
 	// kp  - proportional gain
 	// kd  - derivative gain
 	// ki  - integral gain
-	explicit PID();
-	virtual ~PID() {}
-
 	void init(double max, double min, double kp, double kd, double ki);
 	bool isInit() const;
 

@@ -11,13 +11,14 @@ public:
 	void init(float vRef, float scaleMin, float scaleMax);
 	void setSmoothing(uint samples);
 	void update();
+	bool isReady() const;
 
 	uint16_t getRaw() const;
 	float getVoltage() const;
 	float getScale() const;
 
 private:
-	uint adcNum;
+	const uint adcNum;
 	float vRef;
 	float scaleMin;
 	float scaleMax;
