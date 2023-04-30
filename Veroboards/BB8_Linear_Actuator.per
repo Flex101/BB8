@@ -1,0 +1,175 @@
+[Version]
+Product,2
+File,19
+{
+"Config" : {
+  "NetImportFormat" : "Protel"
+},
+"Board" : {
+  "Width" : 37,
+  "Height" : 24,
+  "Pattern" : "Strip"
+},
+"CelledOutlines" : [
+  { "Name" : "2pin", "Locked" : false,
+    "Rows" : [
+    [{"Pin" : "1"}],
+    [{"Pin" : "2"}]
+    ]
+  },
+  { "Name" : "3pin", "Locked" : true,
+    "Rows" : [
+    [{"Pin" : "1"}],
+    [{"Pin" : "2"}],
+    [{"Pin" : "3"}]
+    ]
+  },
+  { "Name" : "4pin", "Locked" : false,
+    "Rows" : [
+    [{"Pin" : "1"}],
+    [{"Pin" : "2"}],
+    [{"Pin" : "3"}],
+    [{"Pin" : "4"}]
+    ]
+  },
+  { "Name" : "MotorDrive", "Locked" : true,
+    "Rows" : [
+    ["Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body"],
+    ["Body","Free","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Free","Body"],
+    ["Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body"],
+    ["Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body"],
+    ["Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body"],
+    ["Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body"],
+    ["Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body"],
+    ["Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body",{"Pin" : "GND"},"Body","Body"],
+    ["Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body",{"Pin" : "IN2"},"Body","Body"],
+    ["Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body",{"Pin" : "IN1"},"Body","Body"],
+    ["Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body"],
+    ["Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body"],
+    ["Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body"],
+    ["Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body"],
+    ["Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body"],
+    ["Body","Free","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Free","Body"],
+    ["Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body","Body"]
+    ]
+  },
+  { "Name" : "Raspberry Pi Pico", "Locked" : false,
+    "Rows" : [
+    [{"Pin" : "GP0"},"Body","Body","Body","Body","Body","Body",{"Pin" : "VBUS"}],
+    [{"Pin" : "GP1"},"Body","Body","Body","Body","Body","Body",{"Pin" : "VSYS"}],
+    [{"Pin" : "GND"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GND"}],
+    [{"Pin" : "GP2"},"Body","Body","Body","Body","Body","Body",{"Pin" : "3V3_EN"}],
+    [{"Pin" : "GP3"},"Body","Body","Body","Body","Body","Body",{"Pin" : "3V3"}],
+    [{"Pin" : "GP4"},"Body","Body","Body","Body","Body","Body",{"Pin" : "ADC_VREF"}],
+    [{"Pin" : "GP5"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP28"}],
+    [{"Pin" : "GND"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GND"}],
+    [{"Pin" : "GP6"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP27"}],
+    [{"Pin" : "GP7"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP26"}],
+    [{"Pin" : "GP8"},"Body","Body","Body","Body","Body","Body",{"Pin" : "RUN"}],
+    [{"Pin" : "GP9"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP22"}],
+    [{"Pin" : "GND"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GND"}],
+    [{"Pin" : "GP10"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP21"}],
+    [{"Pin" : "GP11"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP20"}],
+    [{"Pin" : "GP12"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP19"}],
+    [{"Pin" : "GP13"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP18"}],
+    [{"Pin" : "GND"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GND"}],
+    [{"Pin" : "GP14"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP17"}],
+    [{"Pin" : "GP15"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP16"}]
+    ]
+  }
+],
+"LeadedOutlines" : [
+],
+"RadialOutlines" : [
+],
+"CustomOutlines" : [
+],
+"SmdOutlines" : [
+],
+"Components" : [
+  { "Designator" : "Enc", "Value" : "", "Outline" : "4pin",
+  "X1000" : 2000, "Y1000" : 1000, "EndDeltaX" : 0, "EndDeltaY" : 1,
+  "Text" : { "X" : 0, "Y" : -1, "Angle" : 0, "Visible" : true },
+  "Group" : 0
+  },
+  { "Designator" : "MtrDrv", "Value" : "??", "Outline" : "MotorDrive",
+  "X1000" : 1000, "Y1000" : 6000, "EndDeltaX" : 0, "EndDeltaY" : 1,
+  "Text" : { "X" : 8, "Y" : 8, "Angle" : 0, "Visible" : true },
+  "Group" : 0
+  },
+  { "Designator" : "Pico", "Value" : "", "Outline" : "Raspberry Pi Pico",
+  "X1000" : 21000, "Y1000" : 2000, "EndDeltaX" : 0, "EndDeltaY" : 1,
+  "Text" : { "X" : 1, "Y" : -1, "Angle" : 0, "Visible" : true },
+  "Group" : 0
+  },
+  { "Designator" : "Pot", "Value" : "??", "Outline" : "3pin",
+  "X1000" : 32000, "Y1000" : 17000, "EndDeltaX" : 0, "EndDeltaY" : 1,
+  "Text" : { "X" : 0, "Y" : -1, "Angle" : 0, "Visible" : true },
+  "Group" : 0
+  },
+  { "Designator" : "Pwr", "Value" : "12V", "Outline" : "2pin",
+  "X1000" : 30000, "Y1000" : 3000, "EndDeltaX" : 0, "EndDeltaY" : 1,
+  "Text" : { "X" : 0, "Y" : -1, "Angle" : 0, "Visible" : true },
+  "Group" : 0
+  }
+],
+"Links" : [
+  { "X" : 26, "Y" : 1, "EndDeltaX" : 0, "EndDeltaY" : 5, "Group" : 0 },
+  { "X" : 30, "Y" : 11, "EndDeltaX" : 0, "EndDeltaY" : 7, "Group" : 0 },
+  { "X" : 31, "Y" : 6, "EndDeltaX" : 0, "EndDeltaY" : 11, "Group" : 0 },
+  { "X" : 19, "Y" : 13, "EndDeltaX" : 0, "EndDeltaY" : 1, "Group" : 0 },
+  { "X" : 16, "Y" : 14, "EndDeltaX" : 0, "EndDeltaY" : 3, "Group" : 0 }
+],
+"Breaks" : [
+  { "X" : 29, "Y" : 18, "Shift" : "none", "Group" : 0 },
+  { "X" : 29, "Y" : 17, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 2, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 3, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 4, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 5, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 6, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 7, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 8, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 9, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 10, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 11, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 12, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 13, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 14, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 15, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 16, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 17, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 18, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 20, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 19, "Shift" : "none", "Group" : 0 },
+  { "X" : 24, "Y" : 21, "Shift" : "none", "Group" : 0 },
+  { "X" : 18, "Y" : 14, "Shift" : "none", "Group" : 0 },
+  { "X" : 20, "Y" : 13, "Shift" : "none", "Group" : 0 }
+],
+"Wires" : [
+],
+"Text" : [
+    { "Value" : "GND", "X" : 32, "Y" : 4, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "5V", "X" : 32, "Y" : 3, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "A", "X" : 4, "Y" : 2, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "3.3V", "X" : 4, "Y" : 1, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "B", "X" : 4, "Y" : 3, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "GND", "X" : 4, "Y" : 4, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "3.3V", "X" : 34, "Y" : 17, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "SEN", "X" : 34, "Y" : 18, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "GND", "X" : 34, "Y" : 19, "Angle" : 0, "Size" : "Small", "Group" : 0 }
+],
+"Nets" : [
+],
+"NetColors" : [
+    { "Node" : "" },
+    { "Node" : "" },
+    { "Node" : "" },
+    { "Node" : "" },
+    { "Node" : "" },
+    { "Node" : "" }
+],
+"Notes" : {
+  "Lines" : ""
+}
+}

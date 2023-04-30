@@ -1,0 +1,164 @@
+[Version]
+Product,2
+File,19
+{
+"Config" : {
+  "NetImportFormat" : "Protel"
+},
+"Board" : {
+  "Width" : 37,
+  "Height" : 24,
+  "Pattern" : "Strip"
+},
+"CelledOutlines" : [
+  { "Name" : "Raspberry Pi Pico", "Locked" : false,
+    "Rows" : [
+    [{"Pin" : "GP0"},"Body","Body","Body","Body","Body","Body",{"Pin" : "VBUS"}],
+    [{"Pin" : "GP1"},"Body","Body","Body","Body","Body","Body",{"Pin" : "VSYS"}],
+    [{"Pin" : "GND"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GND"}],
+    [{"Pin" : "GP2"},"Body","Body","Body","Body","Body","Body",{"Pin" : "3V3_EN"}],
+    [{"Pin" : "GP3"},"Body","Body","Body","Body","Body","Body",{"Pin" : "3V3"}],
+    [{"Pin" : "GP4"},"Body","Body","Body","Body","Body","Body",{"Pin" : "ADC_VREF"}],
+    [{"Pin" : "GP5"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP28"}],
+    [{"Pin" : "GND"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GND"}],
+    [{"Pin" : "GP6"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP27"}],
+    [{"Pin" : "GP7"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP26"}],
+    [{"Pin" : "GP8"},"Body","Body","Body","Body","Body","Body",{"Pin" : "RUN"}],
+    [{"Pin" : "GP9"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP22"}],
+    [{"Pin" : "GND"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GND"}],
+    [{"Pin" : "GP10"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP21"}],
+    [{"Pin" : "GP11"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP20"}],
+    [{"Pin" : "GP12"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP19"}],
+    [{"Pin" : "GP13"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP18"}],
+    [{"Pin" : "GND"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GND"}],
+    [{"Pin" : "GP14"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP17"}],
+    [{"Pin" : "GP15"},"Body","Body","Body","Body","Body","Body",{"Pin" : "GP16"}]
+    ]
+  },
+  { "Name" : "HighPower", "Locked" : false,
+    "Rows" : [
+    [{"Pin" : "PWR"},"Body"],
+    [{"Pin" : "PWR"},"Body"],
+    [{"Pin" : "GND"},"Body"],
+    [{"Pin" : "GND"},"Body"]
+    ]
+  },
+  { "Name" : "ServoConnector", "Locked" : false,
+    "Rows" : [
+    [{"Pin" : "1"}],
+    [{"Pin" : "2"}],
+    [{"Pin" : "3"}]
+    ]
+  },
+  { "Name" : "4pin", "Locked" : false,
+    "Rows" : [
+    [{"Pin" : "1"}],
+    [{"Pin" : "2"}],
+    [{"Pin" : "3"}],
+    [{"Pin" : "4"}]
+    ]
+  }
+],
+"LeadedOutlines" : [
+],
+"RadialOutlines" : [
+],
+"CustomOutlines" : [
+],
+"SmdOutlines" : [
+],
+"Components" : [
+  { "Designator" : "Pico", "Value" : "", "Outline" : "Raspberry Pi Pico",
+  "X1000" : 2000, "Y1000" : 2000, "EndDeltaX" : 0, "EndDeltaY" : 1,
+  "Text" : { "X" : 1, "Y" : -1, "Angle" : 0, "Visible" : true },
+  "Group" : 0
+  },
+  { "Designator" : "PwrConn", "Value" : "", "Outline" : "HighPower",
+  "X1000" : 14000, "Y1000" : 2000, "EndDeltaX" : 0, "EndDeltaY" : 1,
+  "Text" : { "X" : 1, "Y" : -1, "Angle" : 0, "Visible" : true },
+  "Group" : 0
+  },
+  { "Designator" : "FB", "Value" : "", "Outline" : "ServoConnector",
+  "X1000" : 14000, "Y1000" : 8000, "EndDeltaX" : 0, "EndDeltaY" : 1,
+  "Text" : { "X" : 0, "Y" : -1, "Angle" : 0, "Visible" : true },
+  "Group" : 0
+  },
+  { "Designator" : "LR", "Value" : "", "Outline" : "ServoConnector",
+  "X1000" : 14000, "Y1000" : 13000, "EndDeltaX" : 0, "EndDeltaY" : 1,
+  "Text" : { "X" : 0, "Y" : -1, "Angle" : 0, "Visible" : true },
+  "Group" : 0
+  },
+  { "Designator" : "IMU", "Value" : "", "Outline" : "4pin",
+  "X1000" : 14000, "Y1000" : 18000, "EndDeltaX" : 0, "EndDeltaY" : 1,
+  "Text" : { "X" : 0, "Y" : -1, "Angle" : 0, "Visible" : true },
+  "Group" : 0
+  }
+],
+"Links" : [
+  { "X" : 13, "Y" : 5, "EndDeltaX" : 0, "EndDeltaY" : 3, "Group" : 0 },
+  { "X" : 12, "Y" : 8, "EndDeltaX" : 0, "EndDeltaY" : 5, "Group" : 0 },
+  { "X" : 11, "Y" : 2, "EndDeltaX" : 0, "EndDeltaY" : 7, "Group" : 0 },
+  { "X" : 13, "Y" : 9, "EndDeltaX" : 0, "EndDeltaY" : 5, "Group" : 0 },
+  { "X" : 12, "Y" : 14, "EndDeltaX" : 0, "EndDeltaY" : 4, "Group" : 0 }
+],
+"Breaks" : [
+  { "X" : 5, "Y" : 2, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 3, "Shift" : "none", "Group" : 0 },
+  { "X" : 10, "Y" : 2, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 5, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 7, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 6, "Shift" : "none", "Group" : 0 },
+  { "X" : 10, "Y" : 5, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 9, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 10, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 11, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 16, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 21, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 8, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 14, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 13, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 12, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 4, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 20, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 15, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 17, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 18, "Shift" : "none", "Group" : 0 },
+  { "X" : 10, "Y" : 8, "Shift" : "none", "Group" : 0 },
+  { "X" : 10, "Y" : 9, "Shift" : "none", "Group" : 0 },
+  { "X" : 10, "Y" : 13, "Shift" : "none", "Group" : 0 },
+  { "X" : 10, "Y" : 14, "Shift" : "none", "Group" : 0 },
+  { "X" : 10, "Y" : 18, "Shift" : "none", "Group" : 0 },
+  { "X" : 5, "Y" : 19, "Shift" : "none", "Group" : 0 }
+],
+"Wires" : [
+],
+"Text" : [
+    { "Value" : "PWR", "X" : 17, "Y" : 2, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "GND", "X" : 17, "Y" : 4, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "GND", "X" : 17, "Y" : 5, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "PWR", "X" : 17, "Y" : 3, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "PWR", "X" : 16, "Y" : 9, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "GND", "X" : 16, "Y" : 8, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "SIG", "X" : 16, "Y" : 10, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "PWR", "X" : 16, "Y" : 14, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "GND", "X" : 16, "Y" : 13, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "SIG", "X" : 16, "Y" : 15, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "PWR", "X" : 16, "Y" : 18, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "GND", "X" : 16, "Y" : 19, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "SCL", "X" : 16, "Y" : 20, "Angle" : 0, "Size" : "Small", "Group" : 0 },
+    { "Value" : "SDA", "X" : 16, "Y" : 21, "Angle" : 0, "Size" : "Small", "Group" : 0 }
+],
+"Nets" : [
+],
+"NetColors" : [
+    { "Node" : "" },
+    { "Node" : "" },
+    { "Node" : "" },
+    { "Node" : "" },
+    { "Node" : "" },
+    { "Node" : "" }
+],
+"Notes" : {
+  "Lines" : ""
+}
+}
