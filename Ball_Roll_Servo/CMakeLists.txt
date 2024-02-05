@@ -24,10 +24,14 @@ project(BB-8_Ball_Roll C CXX ASM)
 pico_sdk_init()
 
 set(${PROJECT_NAME}_HDR
+	include/lwipopts.h
+	include/btstack_config.h
 )
 
 set(${PROJECT_NAME}_SRC
 	src/main.cpp
+	#src/btstack/spp_counter.c
+	src/btstack/spp_streamer.c
 )
 
 # Add executable. Default name is the project name, version 0.1
@@ -43,6 +47,8 @@ pico_enable_stdio_uart(${PROJECT_NAME} 1)
 # Add the standard library to the build
 target_link_libraries(${PROJECT_NAME}
   pico_stdlib
+  pico_btstack_classic
+  pico_btstack_cyw43
   pico_cyw43_arch_none
   #pico_cyw43_arch_lwip_threadsafe_background
 )
