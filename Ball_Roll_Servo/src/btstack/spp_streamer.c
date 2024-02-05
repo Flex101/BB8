@@ -200,6 +200,7 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packe
 
 	bd_addr_t event_addr;
 	uint8_t rfcomm_channel_nr;
+	float axisValue = 0.0;
 
 	// printf("Packet: ");
 	// for (int i = 0; i < size; ++i)
@@ -361,7 +362,8 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packe
 			break;
 
 		case RFCOMM_EVENT_CAN_SEND_NOW:
-			spp_send_packet();
+			//spp_send_packet();
+			printf("NOW\n");
 			break;
 
 		case RFCOMM_EVENT_CHANNEL_CLOSED:
@@ -386,15 +388,19 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packe
 		break;
 
 	case RFCOMM_DATA_PACKET:
+
 		test_track_transferred(size);
-#if 0
-            // optional: print received data as ASCII text
-            printf("RCV: '");
-            for (int i=0;i<size;i++){
-                putchar(packet[i]);
-            }
-            printf("'\n");
-#endif
+
+		memcpy(&axisValue, packet, 4);
+
+		printf("RCV: ");
+		for (int i = 0; i < size; ++i)
+		{
+			printf("%02x ", packet[i]);
+		}
+		printf("%f", axisValue);
+		printf("\n");
+
 		break;
 
 	default:
