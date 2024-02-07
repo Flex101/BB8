@@ -26,12 +26,14 @@ pico_sdk_init()
 set(${PROJECT_NAME}_HDR
 	include/lwipopts.h
 	include/btstack_config.h
+	include/btController.h
 )
 
 set(${PROJECT_NAME}_SRC
 	src/main.cpp
 	#src/btstack/spp_counter.c
 	src/btstack/spp_streamer.c
+	src/btController.cpp
 )
 
 # Add executable. Default name is the project name, version 0.1
