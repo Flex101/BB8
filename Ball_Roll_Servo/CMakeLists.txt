@@ -27,11 +27,13 @@ set(${PROJECT_NAME}_HDR
 	include/lwipopts.h
 	include/btstack_config.h
 	include/btController.h
+	include/servoController.h
 )
 
 set(${PROJECT_NAME}_SRC
 	src/main.cpp
 	src/btController.cpp
+	src/servoController.cpp
 )
 
 # Add executable. Default name is the project name, version 0.1
@@ -42,7 +44,7 @@ pico_set_program_name(${PROJECT_NAME} "BB-8 Ball Roll")
 pico_set_program_version(${PROJECT_NAME} "0.1")
 
 pico_enable_stdio_usb(${PROJECT_NAME} 1)
-pico_enable_stdio_uart(${PROJECT_NAME} 1)
+pico_enable_stdio_uart(${PROJECT_NAME} 0)
 
 # Add the standard library to the build
 target_link_libraries(${PROJECT_NAME}
