@@ -31,8 +31,6 @@ set(${PROJECT_NAME}_HDR
 
 set(${PROJECT_NAME}_SRC
 	src/main.cpp
-	#src/btstack/spp_counter.c
-	src/btstack/spp_streamer.c
 	src/btController.cpp
 )
 
