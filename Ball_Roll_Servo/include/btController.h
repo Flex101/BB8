@@ -9,6 +9,8 @@ typedef std::vector<Byte> ByteArray;
 
 class BtController
 {
+	typedef void (*rfcomm_data_handler)(uint8_t *packet, uint16_t size);
+
 public:
 	explicit BtController(std::string name, int btClass);
 	virtual ~BtController() {}
@@ -16,11 +18,10 @@ public:
 	void poll();
 	void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size);
 	
-	void getRecievedPackets(std::vector<ByteArray>& destination);
+	void setDataHandler(rfcomm_data_handler funPtr);
 
 protected:
 	void hci_packet_handler(uint8_t *packet, uint16_t size);
-	void rfcomm_data_packet_handler(uint8_t *packet, uint16_t size);
 
 private:
 	uint8_t spp_service_buffer[150];
@@ -28,5 +29,5 @@ private:
 	uint16_t rfcomm_cid = 0;
 	btstack_packet_callback_registration_t hci_event_callback_registration;
 
-	std::vector<ByteArray> recievedPackets;
+	rfcomm_data_handler dataHandler;
 };

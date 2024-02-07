@@ -3,6 +3,14 @@
 #include "pico/cyw43_arch.h"
 #include <stdio.h>
 
+float axisValue;
+
+void dataHandler(uint8_t* packet, uint16_t size)
+{
+	if (size != 4) return;
+	memcpy(&axisValue, packet, 4);
+}
+
 int main()
 {
 	stdio_init_all();
@@ -17,34 +25,11 @@ int main()
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
 
 	BtController btController("BB-8 Ball Roll", 0xBB8);
-
-	std::vector<ByteArray> recievedPackets;
-	float axisValue = 0.0;
+	btController.setDataHandler(dataHandler);
 
 	while(true)
 	{
 		btController.poll();
-		btController.getRecievedPackets(recievedPackets);
-
-		for (ByteArray packet : recievedPackets)
-		{
-			if (packet.size() != 4)
-			{
-				printf("BAD PACKET!\n");
-			}
-			else
-			{
-				memcpy(&axisValue, &packet[0], 4);
-			}
-
-			printf("RCV: ");
-			for (Byte byte : packet)
-			{
-				printf("%02x ", byte);
-			}
-			printf("%f", axisValue);
-			printf("\n");
-		}
-		recievedPackets.clear();
+		printf("%f\n", axisValue);
 	}
 }

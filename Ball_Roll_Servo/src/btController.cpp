@@ -13,7 +13,8 @@ static void static_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t
 	instance->packet_handler(packet_type, channel, packet, size);
 }
 
-BtController::BtController(std::string name, int btClass)
+BtController::BtController(std::string name, int btClass) :
+	dataHandler(nullptr)
 {
 	instance = this;
 
@@ -54,7 +55,7 @@ void BtController::packet_handler(uint8_t packet_type, uint16_t channel, uint8_t
 			break;
 
 		case RFCOMM_DATA_PACKET:
-			rfcomm_data_packet_handler(packet, size);
+			if (dataHandler != nullptr) dataHandler(packet, size);
 			break;
 
 		default:
@@ -63,10 +64,9 @@ void BtController::packet_handler(uint8_t packet_type, uint16_t channel, uint8_t
 	}
 }
 
-void BtController::getRecievedPackets(std::vector<ByteArray>& destination)
+void BtController::setDataHandler(rfcomm_data_handler funPtr)
 {
-	destination.insert(destination.end(), recievedPackets.begin(), recievedPackets.end());
-	recievedPackets.clear();
+	dataHandler = funPtr;
 }
 
 void BtController::hci_packet_handler(uint8_t *packet, uint16_t size)
@@ -237,19 +237,4 @@ void BtController::hci_packet_handler(uint8_t *packet, uint16_t size)
 			printf("\n");
 			break;
 	}
-}
-
-void BtController::rfcomm_data_packet_handler(uint8_t *packet, uint16_t size)
-{
-	if (PRINT_DEBUG)
-	{
-		printf("RFCOMM PACKET: ");
-		for (int i = 0; i < size; ++i)
-		{
-			printf("%02x ", packet[i]);
-		}
-		printf("\n");
-	}
-
-	recievedPackets.push_back(ByteArray(&packet[0], &packet[size]));
 }
