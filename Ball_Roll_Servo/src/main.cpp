@@ -26,8 +26,6 @@ int main()
 		return -1;
 	}
 
-	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
-
 	BtController btController("BB-8 Ball Roll", 0xBB8);
 	btController.setDataHandler(dataHandler);
 
@@ -36,16 +34,22 @@ int main()
 
 	ServoController servoController;
 	bool success = servoController.init();
+	//success &= servoController.setMaxSpeed(99);
 	
 	if (!success)
 	{
+		printf("Failed to initialise!\n");
+
 		while (true)
 		{
-			printf("Failed to initialise!\n");
-			sleep_ms(500);
+			sleep_ms(250);
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
+			sleep_ms(250);
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
 		}
 	}
 
+	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
 	printf("Initialisation complete!\n");
 
 	int encoderPos = 0;
@@ -66,8 +70,10 @@ int main()
 			servoController.readPos(encoderPos);
 			printf("Encoder: %d\n", encoderPos);
 
-			demandPos += (axisValue * 50);
-			servoController.writePos(demandPos);
+			// demandPos += (axisValue * 50);
+			// servoController.writePos(demandPos);
+
+			servoController.writeVel(axisValue * 99);
 
 			lastUpdate = now;
 		}

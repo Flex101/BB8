@@ -30,7 +30,27 @@ bool ServoController::init()
 	std::string expected = "P0\r\n";
 	std::string reply;
 	bool success = readLine(reply);
+	nicePrint(reply);
 	if (!success) return false;
+
+	return (reply == expected);
+}
+
+bool ServoController::setMaxSpeed(int speed)
+{
+	if (speed > 255) return false;
+	if (speed < 0) return false;
+
+	std::string msg = "M" + std::to_string(speed) + "\r\n";
+	uart_puts(UART_ID, msg.c_str());
+
+	std::string expected = msg;
+	std::string reply;
+	bool success = readLine(reply);
+	nicePrint(success);
+	nicePrint(reply);
+	if (!success) return false;
+	
 
 	return (reply == expected);
 }
@@ -42,8 +62,7 @@ bool ServoController::readPos(int& result)
 	std::string reply;
 	bool success = readLine(reply);
 	if (!success) return false;
-	if (reply[0] != ':') return false;
-	if (reply[1] != 'P') return false;
+	if (reply[0] != 'P') return false;
 
 	reply = reply.substr(2, reply.length() - 5);
 	result = std::atoi(reply.c_str());
@@ -66,6 +85,25 @@ bool ServoController::writePos(int demand)
 	return success;
 }
 
+bool ServoController::writeVel(int demand)
+{
+	if (demand > 99) return false;
+	if (demand < -99) return false;
+
+	std::string msg = "S";
+	if (demand >0 ) msg += "+";
+	msg += std::to_string(demand);
+	msg += "\r\n";
+
+	uart_puts(UART_ID, msg.c_str());
+
+	std::string reply;
+	bool success = readLine(reply);
+	//printf("WRITE REPLY: %s\n", reply.c_str());
+
+	return success;
+}
+
 bool ServoController::readLine(std::string& result)
 {
 	std::string reply;
@@ -74,13 +112,34 @@ bool ServoController::readLine(std::string& result)
 	while(true)
 	{
 		char ch = uart_getc(UART_ID);
-		printf("%c", ch);
+
+		if (ch == ':') break;
 		reply += char(ch);
-		if (ch == '\n') break;
-		if (!uart_is_readable_within_us(UART_ID, 2000)) return false;
+
+		if (!uart_is_readable_within_us(UART_ID, 10000))
+		{
+			result = reply;
+			return false;
+		}
 	}
-	printf("\n");
 
 	result = reply;
 	return true;
+}
+
+void ServoController::nicePrint(const std::string& str)
+{
+	for (char ch : str)
+	{
+		if (ch == '\r') printf("\\r");
+		else if (ch == '\n') printf("\\n");
+		else printf("%c", ch);
+	}
+	printf("\n");
+}
+
+void ServoController::nicePrint(const bool& val)
+{
+	if (val) printf("True\n");
+	else printf("False\n");
 }
