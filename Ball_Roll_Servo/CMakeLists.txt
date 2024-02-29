@@ -24,6 +24,8 @@ project(BB-8_Ball_Roll C CXX ASM)
 pico_sdk_init()
 
 set(${PROJECT_NAME}_HDR
+	include/Common.h
+	include/MPU6050.h
 	include/lwipopts.h
 	include/btstack_config.h
 	include/btController.h
@@ -31,6 +33,8 @@ set(${PROJECT_NAME}_HDR
 )
 
 set(${PROJECT_NAME}_SRC
+	src/Common.cpp
+	src/MPU6050.cpp
 	src/main.cpp
 	src/btController.cpp
 	src/servoController.cpp
@@ -49,6 +53,7 @@ pico_enable_stdio_uart(${PROJECT_NAME} 0)
 # Add the standard library to the build
 target_link_libraries(${PROJECT_NAME}
   pico_stdlib
+  hardware_i2c
   pico_btstack_classic
   pico_btstack_cyw43
   pico_cyw43_arch_none

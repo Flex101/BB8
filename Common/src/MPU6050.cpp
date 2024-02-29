@@ -1,6 +1,5 @@
 #include "MPU6050.h"
 #include "Common.h"
-#include "hardware/i2c.h"
 #include "math.h"
 #include <stdio.h>
 
@@ -23,11 +22,20 @@ MPU6050::MPU6050()
 	setAccelOffsets(0,0,0);
 }
 
+void MPU6050::setPorts(byte i2c, byte sda, byte scl)
+{
+	if (i2c == 1) IMU_INST = i2c1;
+	else IMU_INST = i2c0;
+
+	IMU_SDA = sda;
+	IMU_SCL = scl;
+}
+
 byte MPU6050::init(byte dev_addr, bool init_i2c, int gyro_config, int accel_config)
 {
 	if (init_i2c)
 	{
-		i2c_init(i2c_default, 400 * 1000);
+		i2c_init(IMU_INST, 400 * 1000);
 		gpio_set_function(IMU_SDA, GPIO_FUNC_I2C);
 		gpio_set_function(IMU_SCL, GPIO_FUNC_I2C);
 		gpio_pull_up(IMU_SDA);
@@ -81,8 +89,8 @@ void MPU6050::calcOffsets(bool accel_x, bool accel_y, bool accel_z, bool gyro_x,
 bool MPU6050::test()
 {
 	byte buf;
-	i2c_write_blocking(i2c_default, devAddr, &REG_DEV_ID, 1, true); 
-	i2c_read_blocking(i2c_default, devAddr, &buf, 1, false);
+	i2c_write_blocking(IMU_INST, devAddr, &REG_DEV_ID, 1, true); 
+	i2c_read_blocking(IMU_INST, devAddr, &buf, 1, false);
 	return (buf == IMU_ID);
 }
 
@@ -116,7 +124,7 @@ byte MPU6050::setGyroConfig(int config_num)
 			return 1;
 	}
 
-	return i2c_write_blocking(i2c_default, devAddr, msg, 2, true); 
+	return i2c_write_blocking(IMU_INST, devAddr, msg, 2, true); 
 }
 
 byte MPU6050::setAccelConfig(int config_num)
@@ -149,7 +157,7 @@ byte MPU6050::setAccelConfig(int config_num)
 			return 1;
 	}
 
-	return i2c_write_blocking(i2c_default, devAddr, msg, 2, true);
+	return i2c_write_blocking(IMU_INST, devAddr, msg, 2, true);
 }
 
 void MPU6050::setGyroOffsets(float x, float y, float z)
@@ -198,8 +206,8 @@ void MPU6050::update()
 
 void MPU6050::fetchData()
 {
-	i2c_write_blocking(i2c_default, devAddr, &REG_DATA, 1, true);
-	i2c_read_blocking(i2c_default, devAddr, buffer, REG_DATA_LEN, false);
+	i2c_write_blocking(IMU_INST, devAddr, &REG_DATA, 1, true);
+	i2c_read_blocking(IMU_INST, devAddr, buffer, REG_DATA_LEN, false);
 
 	// for (int i = 0; i < REG_DATA_LEN; ++i)
 	// {
@@ -229,5 +237,5 @@ void MPU6050::fetchData()
 void MPU6050::resetImu()
 {
 	byte msg[] = {REG_PWR_MGMT_1, 0x00};
- 	i2c_write_blocking(i2c_default, devAddr, msg, 2, false);
+ 	i2c_write_blocking(IMU_INST, devAddr, msg, 2, false);
 }

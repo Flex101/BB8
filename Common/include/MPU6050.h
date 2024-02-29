@@ -1,5 +1,6 @@
 #pragma once
 #include "Common.h"
+#include "hardware/i2c.h"
 
 struct RawFrame
 {
@@ -14,6 +15,7 @@ public:
 	explicit MPU6050();
 	virtual ~MPU6050() {}
 
+	void setPorts(byte i2c, byte sda, byte scl);
 	byte init(byte dev_addr = 0x68, bool init_i2c = true, int gyro_config = 1, int accel_config = 0);
 	void calcOffsets(bool accel_x = true, bool accel_y = true, bool accel_z = true, bool gyro_x = true, bool gyro_y = true, bool gyro_z = true);
 
@@ -35,9 +37,10 @@ private:
 	void resetImu();
 
 private:
+	i2c_inst_t* IMU_INST        = i2c0;
+	byte IMU_SDA                = 16;
+	byte IMU_SCL                = 17;
 	const byte IMU_ID           = 0x68; // Doesn't change with address
-	const byte IMU_SDA          = 16;
-	const byte IMU_SCL          = 17;
 	const byte REG_DEV_ID       = 0x75;
 	const byte REG_CONFIG       = 0x1A;
 	const byte REG_GYRO_CONFIG  = 0x1B;
