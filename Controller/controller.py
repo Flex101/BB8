@@ -47,6 +47,12 @@ def filterAxis(value:float, center:float, deadzone:float, invert:bool):
 	else: value = (value-center)/(1+center)
 	
 	if (abs(value) < deadzone): value = 0.0
+	else:
+		if (value > 0):
+			value = (value - deadzone) / (1.0 - deadzone)
+		else:
+			value = -((value + deadzone) / (-1.0 + deadzone))
+
 	if (value > 1): value = 1.0
 	if (value < -1): value = -1.0
 	
@@ -54,14 +60,12 @@ def filterAxis(value:float, center:float, deadzone:float, invert:bool):
 	else: return value
 
 
-def buildPacket(controller:GameController):
+def buildPacket(controller:GameController, axis:int):
 
-	roll_demand = filterAxis(controller.axis_data[1], 0.2, 0.1, True)
-
-	print(roll_demand)
+	demand = filterAxis(controller.axis_data[axis], 0.2, 0.2, True)
 
 	packet = bytearray()
-	packet += struct.pack("f", roll_demand)
+	packet += struct.pack("f", demand)
 	
 	return packet
 
@@ -70,10 +74,14 @@ controller = GameController()
 controller.init()
 controller.setAxisCenter(1, 0.2)
 
-serialPort = serial.Serial('/dev/rfcomm0')
+serialPortRoll = serial.Serial('/dev/rfcomm0')
+serialPortTilt = serial.Serial('/dev/rfcomm1')
+
 
 while (True):
 	controller.update()
-	packet = buildPacket(controller)
-	serialPort.write(packet)
+	packet = buildPacket(controller, 1)
+	serialPortRoll.write(packet)
+	packet = buildPacket(controller, 0)
+	serialPortTilt.write(packet)
 	time.sleep(0.01)

@@ -5,13 +5,13 @@
 class MotorDriver
 {
 public:
-	explicit MotorDriver(uint in1, uint in2);
+	explicit MotorDriver(uint pwmPin, uint dirPin);
 	virtual ~MotorDriver() {}
 
 	void init();
 	void setSpeed(float pos);
 
 private:
-	Servo mtr1;
-	Servo mtr2;
+	Servo pwm;
+	uint dirPin;
 };

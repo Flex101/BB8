@@ -1,32 +1,31 @@
 #include "MotorDriver.h"
 
-MotorDriver::MotorDriver(uint in1, uint in2) :
-	mtr1(in1), mtr2(in2)
+MotorDriver::MotorDriver(uint pwmPin, uint dirPin) :
+	pwm(pwmPin), dirPin(dirPin)
 {
 	
 }
 
 void MotorDriver::init()
 {
-	mtr1.setPosRange(0,20000);
-	mtr1.setPosHome(0);
-	mtr1.goToPos(0);
+	pwm.setPosRange(0,5000); //20000 MAX - DON'T!
+	pwm.setPosHome(0);
+	pwm.goToPos(0);
 
-	mtr2.setPosRange(0,20000);
-	mtr2.setPosHome(0);
-	mtr2.goToPos(0);
+	gpio_init(dirPin);
+	gpio_set_dir(dirPin, GPIO_OUT);
+	gpio_put(dirPin, 1);
 }
 
 void MotorDriver::setSpeed(float speed)
 {
-	if (speed > 0)
+	if (abs(speed) < 0.1)
 	{
-		mtr1.goToScaledPos(speed);
-		mtr2.goToPos(0);
+		pwm.goToPos(0);
 	}
 	else
 	{
-		mtr1.goToPos(0);
-		mtr2.goToScaledPos(-speed);
+		pwm.goToScaledPos(abs(speed));
+		gpio_put(dirPin, (speed > 0));
 	}
 }

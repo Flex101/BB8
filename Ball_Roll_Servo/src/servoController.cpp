@@ -7,7 +7,7 @@
 #define BAUD_RATE 9600
 #define DATA_BITS 8
 #define STOP_BITS 1
-#define PARITY    UART_PARITY_NONE
+#define PARITY UART_PARITY_NONE
 #define UART_TX_PIN 16
 #define UART_RX_PIN 17
 
@@ -24,16 +24,25 @@ bool ServoController::init()
 	uart_set_format(UART_ID, DATA_BITS, STOP_BITS, PARITY);
 	uart_set_fifo_enabled(UART_ID, false);
 
+
 	// Reset encoder position
 	uart_puts(UART_ID, "P0\r\n");
-
 	std::string expected = "P0\r\n";
 	std::string reply;
 	bool success = readLine(reply);
 	nicePrint(reply);
 	if (!success) return false;
+	if (reply != expected) return false;
 
-	return (reply == expected);
+
+	// Reset gains incase they got corrupted
+	uart_puts(UART_ID, "Y\r\n");
+	expected = "Y";
+	success = readLine(reply);
+	nicePrint(reply);
+	if (reply != expected) return false;
+
+	return true;
 }
 
 bool ServoController::setMaxSpeed(int speed)
@@ -116,7 +125,7 @@ bool ServoController::readLine(std::string& result)
 		if (ch == ':') break;
 		reply += char(ch);
 
-		if (!uart_is_readable_within_us(UART_ID, 10000))
+		if (!uart_is_readable_within_us(UART_ID, 2000))
 		{
 			result = reply;
 			return false;

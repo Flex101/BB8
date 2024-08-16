@@ -1,39 +1,58 @@
+#include "btController.h"
 #include "MotorDriver.h"
 #include "Encoder.h"
 #include "Pot.h"
+#include "DemandInput.h"
 #include "Common.h"
+#include "pico/stdlib.h"
+#include "pico/cyw43_arch.h"
 #include <string>
 #include <math.h>
 #include <stdio.h>
 
 const uint LED_PIN = 25;
-const uint MTR_IN1 = 10;
-const uint MTR_IN2 = 12;
+const uint MTR_PWM = 21;
+const uint MTR_DIR = 20;
 const uint ENC_A   =  0;
 const uint ENC_B   =  1;
 const uint POT_ADC =  0;
+float tiltAxisValue = 0;
 
-void abort(const char *msg)
+void dataHandler(uint8_t* packet, uint16_t size)
 {
-	while (true)
-	{
-		gpio_put(LED_PIN, 0);
-		sleep_ms(500);
-		gpio_put(LED_PIN, 1);
-		sleep_ms(500);
-		printf("%s\n", msg);
-	}
+	if (size != 4) return;
+	memcpy(&tiltAxisValue, packet, 4);
+	//printf("Axis value: %f\n", axisValue);
 }
 
+void abort(const std::string& msg)
+{
+	printf("%s\n", msg.c_str());
+
+	while (true)
+	{
+		sleep_ms(250);
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
+		sleep_ms(250);
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
+	}
+}
 int main()
 {
 	stdio_init_all();
+	sleep_ms(3000);
 
-	gpio_init(LED_PIN);
-	gpio_set_dir(LED_PIN, GPIO_OUT);
-	gpio_put(LED_PIN, 1);
+	if (cyw43_arch_init()) abort("Failed to initialise CYW43 driver.");
+	printf("CYW43 driver initialised.\n");
 
-	MotorDriver motorDriver(MTR_IN1, MTR_IN2);
+	BtController btController("BB-8 Ball Tilt", 0xBB8);
+	btController.setDataHandler(dataHandler);
+	printf("Bluetooth controller initialised.\n");
+
+	printf("Delay start...\n");
+	sleep_ms(1000);
+
+	MotorDriver motorDriver(MTR_PWM, MTR_DIR);
 	motorDriver.init();
 
 	Encoder encoder(ENC_A, ENC_B);
@@ -41,10 +60,16 @@ int main()
 
 	Pot pot(POT_ADC);
 	pot.init(3.3f, 0.011f, 3.299f);
-	pot.setSmoothing(50);
+	pot.setSmoothing(75);
 
 	PID pid;
 	pid.init(1.00f, -1.00f, 3.00f, 0.00f, 0.00f);
+
+	DemandInput demandInput;
+	demandInput.init();
+
+	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
+	printf("Initialisation complete!\n");
 
 	const uint dur = 3000;
 	uint inc = 0;
@@ -57,10 +82,23 @@ int main()
 	uint32_t prevMillis = millis();
 	uint32_t dt = float(millis() - prevMillis) / 1000;
 
+	sleep_ms(3000);
+
+	uint32_t now = to_ms_since_boot(get_absolute_time());
+	uint32_t lastUpdate_Print = 0;
+	uint32_t lastUpdate_Motor = 0;
+
 	while (true)
 	{
+		now = to_ms_since_boot(get_absolute_time());
+
+		btController.poll();
 		encoder.update();
 		pot.update();
+
+		target = tiltAxisValue;
+		if (target >  0.5) target =  0.5;
+		if (target < -0.5) target = -0.5;
 
 		if (pot.isReady())
 		{
@@ -73,36 +111,13 @@ int main()
 			if (actual >=  0.91f) motorDriver.setSpeed(0);
 			if (actual <= -0.91f) motorDriver.setSpeed(0);
 
-			if ((millis() > outputTimer) && (millis() > 5000))
-			{
-				if (inc > dur)
-				{
-					target = 0;
-					if (inc > (dur * 3)) inc = 0;
-				}				
-				else if (inc < (dur/4))
-				{
-					float prog = float(inc) / (dur/4);
-					target = (0.5 + cos(PI + (PI*prog))/2) * 0.9;
-				}
-				else if (inc > 3*(dur/4))
-				{
-					float prog = (float(inc) / (dur/4)) - 3;
-					target = ((cos(PI + (PI*prog))/2) - 0.5) * 0.9;
-				}
-				else
-				{
-					target = sin(2 * PI * (float(inc)/dur)) * 0.9;
-				}
-
-				printf("%f\n", target);
-
-				inc++;
-				outputTimer = millis();
-			}
+			//prevMillis = millis();
 		}
 
-		//prevMillis = millis();
+		if (now - lastUpdate_Print > 100)
+		{
+			printf("%f %f\n", tiltAxisValue, actual);
+		}
 	}
 
 	finish();

@@ -41,6 +41,7 @@
 		"streambuf": "cpp",
 		"functional": "cpp",
 		"string_view": "cpp",
-		"bit": "cpp"
+		"bit": "cpp",
+		"cmath": "cpp"
 	}
 }
