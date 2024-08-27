@@ -34,13 +34,13 @@ class BallMixer:
 	
 
 	def getTilt(self) -> float:
-		x = self.ballController.axis_data[0]
+		x = self.ballController.getX()
 		return x
 
 
 	def getAngle(self) -> float:
-		x = self.ballController.axis_data[0]
-		y = -self.ballController.axis_data[1]
+		x = self.ballController.getX()
+		y = self.ballController.getY()
 
 		angle = math.atan(x/y) * toDegrees
 		if (y < 0):
@@ -53,8 +53,8 @@ class BallMixer:
 	
 
 	def getMagnitude(self) -> float:
-		x = self.ballController.axis_data[0]
-		y = self.ballController.axis_data[1]
+		x = self.ballController.getX()
+		y = self.ballController.getY()
 		mag = math.sqrt((x * x) + (y * y))
 		if (mag > 1): mag = 1
 		return mag

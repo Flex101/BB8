@@ -48,8 +48,8 @@ for i in range(pygame.joystick.get_count()):
 	controller.connect(i)
 	controllers.append(controller)
 
-ballController = None
-domeController = None
+ballController:GameController|None = None
+domeController:GameController|None = None
 
 for controller in controllers:
 	match controller.controller.get_name():
@@ -95,6 +95,10 @@ while (True):
 
 	roll = mixer.getRoll()
 	tilt = mixer.getTilt()
+
+	# Use shoulder button as roll enable
+	if (ballController.getShoulderButton() == False):
+		roll = 0.0
 
 	packet = buildPacket(roll)
 	serialPortRoll.write(packet)
