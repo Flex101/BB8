@@ -28,4 +28,4 @@ class GameController:
 		return -self.axis_data[1]
 	
 	def getShoulderButton(self) -> bool:
-		return self.button_data[9]
+		return self.button_data[10]
