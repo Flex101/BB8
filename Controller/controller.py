@@ -1,10 +1,9 @@
+from GameController import GameController
+from BallMixer import BallMixer
 import serial
 import pygame
-import pprint
-import threading
 import struct
 import time
-import os
 
 PRINT = False   # Enabling this will reduce performance
 
@@ -12,30 +11,6 @@ class ControllerNames:
 	ball = "PLAYSTATION(R)3 Controller (04:76:6E:99:8D:EF)"
 	dome = "PLAYSTATION(R)3 Controller (00:26:43:C9:DD:9E)"
 
-class GameController(object):
-
-	def __init__(self):
-		self.controller = None
-		self.axis_data = None
-		self.button_data = None
-		self.hat_data = None
-
-	def connect(self, index:int=0):
-		"""Initialize the joystick components"""
-		self.controller = pygame.joystick.Joystick(index)
-		self.controller.init()
-		self.button_data = [False] * self.controller.get_numbuttons()
-		self.hat_data = [(0, 0)] * self.controller.get_numhats()
-		self.axis_data = [0.0] * 2 #self.controller.get_numaxes()
-
-	def setAxisCenter(self, axisIndex:int, center:float):
-		self.axis_data[axisIndex] = center
-
-	def update(self):
-		for i in range(len(self.axis_data)):
-			self.axis_data[i] = self.controller.get_axis(i)
-		for i in range(len(self.button_data)):
-			self.button_data[i] = self.controller.get_button(i)
 
 def filterAxis(value:float, center:float, deadzone:float, invert:bool):
 	
@@ -56,13 +31,9 @@ def filterAxis(value:float, center:float, deadzone:float, invert:bool):
 	else: return value
 
 
-def buildPacket(controller:GameController, axis:int):
-
-	demand = filterAxis(controller.axis_data[axis], 0.2, 0.2, True)
-
+def buildPacket(value:float):
 	packet = bytearray()
-	packet += struct.pack("f", demand)
-	
+	packet += struct.pack("f", value)
 	return packet
 
 
@@ -75,7 +46,6 @@ controllers = []
 for i in range(pygame.joystick.get_count()):
 	controller = GameController()
 	controller.connect(i)
-	controller.setAxisCenter(1, 0.2)
 	controllers.append(controller)
 
 ballController = None
@@ -97,6 +67,8 @@ if (domeController == None):
 if (ballController == None or domeController == None):
 	exit()
 print("Found ball and dome controllers")
+
+mixer = BallMixer(ballController)
 
 serialPortRoll = serial.Serial('/dev/rfcomm0')
 serialPortTilt = serial.Serial('/dev/rfcomm1')
@@ -121,8 +93,11 @@ while (True):
 			print(domeController.button_data[i], end=' ')
 		print()
 
-	packet = buildPacket(ballController, 1)
+	roll = mixer.getRoll()
+	tilt = mixer.getTilt()
+
+	packet = buildPacket(roll)
 	serialPortRoll.write(packet)
-	packet = buildPacket(ballController, 0)
+	packet = buildPacket(tilt)
 	serialPortTilt.write(packet)
 	time.sleep(0.01)
