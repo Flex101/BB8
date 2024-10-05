@@ -1,47 +1,77 @@
 {
-	// These settings tweaks to the cmake plugin will ensure
-	// that you debug using cortex-debug instead of trying to launch
-	// a Pico binary on the host
-	"cmake.statusbar.advanced": {
-		"debug": {
-			"visibility": "hidden"
-		},
-		"launch": {
-			"visibility": "hidden"
-		},
-		"build": {
-			"visibility": "hidden"
-		},
-		"buildTarget": {
-			"visibility": "hidden"
-		}
-	},
-	"cmake.buildBeforeRun": true,
-	"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    // These settings tweaks to the cmake plugin will ensure
+    // that you debug using cortex-debug instead of trying to launch
+    // a Pico binary on the host
+    "cmake.statusbar.advanced": {
+        "debug": {
+            "visibility": "hidden"
+        },
+        "launch": {
+            "visibility": "hidden"
+        },
+        "build": {
+            "visibility": "hidden"
+        },
+        "buildTarget": {
+            "visibility": "hidden"
+        }
+    },
+    "cmake.buildBeforeRun": true,
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
 	"cmake.configureOnOpen": true,
-	"C_Cpp.errorSquiggles": "enabled",
-	"includePath": [
-		"${fileWorkspaceFolder}/include",
-		"/home/matthew/RaspPi_Pico/pico-sdk/src/rp2_common/hardware_i2c"
-	],
 	"files.associations": {
-		"memory": "cpp",
-		"random": "cpp",
-		"optional": "cpp",
-		"new": "cpp",
-		"algorithm": "cpp",
+		"cyw43_arch.h": "c",
+		"cyw43.h": "c",
+		"netif.h": "c",
+		"dhcp.h": "c",
+		"spp_counter.c": "cpp",
+		"spp_streamer.c": "cpp",
+		"array": "cpp",
+		"atomic": "cpp",
+		"bit": "cpp",
 		"*.tcc": "cpp",
-		"fstream": "cpp",
+		"cctype": "cpp",
+		"clocale": "cpp",
+		"cmath": "cpp",
+		"compare": "cpp",
+		"concepts": "cpp",
+		"cstdarg": "cpp",
+		"cstddef": "cpp",
+		"cstdint": "cpp",
+		"cstdio": "cpp",
+		"cstdlib": "cpp",
+		"cwchar": "cpp",
+		"cwctype": "cpp",
+		"deque": "cpp",
+		"unordered_map": "cpp",
+		"vector": "cpp",
+		"exception": "cpp",
+		"algorithm": "cpp",
+		"functional": "cpp",
+		"iterator": "cpp",
+		"memory": "cpp",
+		"memory_resource": "cpp",
 		"numeric": "cpp",
+		"optional": "cpp",
+		"random": "cpp",
+		"string": "cpp",
+		"string_view": "cpp",
 		"system_error": "cpp",
-		"istream": "cpp",
+		"tuple": "cpp",
+		"type_traits": "cpp",
+		"utility": "cpp",
+		"initializer_list": "cpp",
+		"iosfwd": "cpp",
 		"limits": "cpp",
+		"new": "cpp",
 		"ostream": "cpp",
+		"ranges": "cpp",
 		"stdexcept": "cpp",
 		"streambuf": "cpp",
-		"functional": "cpp",
-		"string_view": "cpp",
-		"bit": "cpp",
-		"cmath": "cpp"
+		"cinttypes": "cpp",
+		"typeinfo": "cpp",
+		"inttypes.h": "c",
+		"numbers": "cpp",
+		"cstring": "cpp"
 	}
 }

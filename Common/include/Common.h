@@ -1,6 +1,8 @@
 #pragma once
 #include "pico/stdlib.h"
 #include "math.h"
+#include <stdio.h>
+#include <string>
 
 using byte = uint8_t;
 
@@ -98,3 +100,14 @@ namespace BB8
 	};
 
 } // namespace BB8
+
+static void nicePrint(const std::string& str)
+{
+	for (char ch : str)
+	{
+		if (ch == '\r') printf("\\r");
+		else if (ch == '\n') printf("\\n");
+		else printf("%c", ch);
+	}
+	printf("\n");
+}

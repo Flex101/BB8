@@ -1,172 +1,77 @@
-#include "Control.h"
-#include "Calibration.h"
-#include "DomeMixer.h"
-#include "Servo.h"
+#include "btController.h"
+#include "LynxMotionPort.h"
+#include "LynxMotionServo.h"
 #include "MPU6050.h"
 #include "Common.h"
-#include <string>
-#include <math.h>
-#include <stdio.h>
+#include "pico/stdlib.h"
+#include "pico/cyw43_arch.h"
+#include "pico/time.h"
 
+uart_inst_t* UART_ID = uart0;
+const uint8_t UART_TX_PIN = 16;
+const uint8_t UART_RX_PIN = 17;
 const byte IMU_DOME_ID = 0x69;
-const byte IMU_BASE_ID = 0x68;
-const uint LED_PIN = 25;
-const uint SERVO_FB_PIN = 27;
-const uint SERVO_LR_PIN = 21;
+const byte IMU_SDA = 10;
+const byte IMU_SCL = 11;
+float xAxisValue = 0;
+float yAxisValue = 0;
+float zAxisValue = 0;
 
-void abort(const char *msg)
+void dataHandler(uint8_t* packet, uint16_t size)
 {
+	if (size != (3*sizeof(float))) return;
+	memcpy(&xAxisValue, packet, sizeof(float));
+	packet += sizeof(float);
+	memcpy(&yAxisValue, packet, sizeof(float));
+	packet += sizeof(float);
+	memcpy(&zAxisValue, packet, sizeof(float));
+	//printf("Axis value: %f\n", axisValue);
+}
+
+void abort(const std::string& msg = "")
+{
+	printf("%s\n", msg.c_str());
+
 	while (true)
 	{
-		gpio_put(LED_PIN, 0);
-		sleep_ms(500);
-		gpio_put(LED_PIN, 1);
-		sleep_ms(500);
-		printf("%s\n", msg);
+		sleep_ms(250);
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
+		sleep_ms(250);
+		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
 	}
 }
 
 int main()
 {
 	stdio_init_all();
-	//sleep_ms(3000);
+	sleep_ms(3000);
 
-	gpio_init(LED_PIN);
-	gpio_set_dir(LED_PIN, GPIO_OUT);
-	gpio_put(LED_PIN, 1);
+	if (cyw43_arch_init()) abort("Failed to initialise CYW43 driver.");
+	printf("CYW43 driver initialised.\n");
 
-	Servo servoLr(SERVO_LR_PIN);
-	servoLr.setPosRange(1150,1600);
-	servoLr.setPosHome(1375);
+	BtController btController("BB-8 Dome", 0xBB8);
+	btController.setDataHandler(dataHandler);
+	printf("Bluetooth controller initialised.\n");
 
-	Servo servoFb(SERVO_FB_PIN);
-	servoFb.setPosRange(1300,1650);
-	servoFb.setPosHome(1475);
+	printf("Delay start...\n");
+	sleep_ms(1000);
 
-	servoFb.goToHome();
-	servoLr.goToHome();
-	sleep_ms(2000);
+	LynxMotionPort servoPort(UART_ID, UART_TX_PIN, UART_RX_PIN);
+	bool success = servoPort.init();
 
-	MPU6050 imuDome;
-	imuDome.init(IMU_DOME_ID);
-	if (!imuDome.test()) abort("IMU_DOME not found");
+	LynxMotionServo yAxisServo(servoPort, 0);
+	success &= yAxisServo.init();
 
-	MPU6050 imuBase;
-	imuBase.init(IMU_BASE_ID, false);
-	if (!imuBase.test()) abort("IMU_BASE not found");
+	LynxMotionServo xAxisServo(servoPort, 1);
+	success &= xAxisServo.init();
 
-	// Tries to reduce z inclination drift while leaving x and y inclination relative to gravity
-	imuDome.calcOffsets(false, false, true, true, true, true);
-	imuBase.calcOffsets(false, false, true, true, true, true);
+	LynxMotionServo zAxisServo(servoPort, 2);
+	success &= zAxisServo.init();
 
-	BB8::DomeMixer domeMixer(imuDome, imuBase);
-	domeMixer.setDomeToBaseOffsets(-2.5, 2.5, 0); // Fudge offset in mounting
+	if (!success) abort("Failed to initialise servos");
 
-	/*
-	BB8::Calibration calibration(servoFb, servoLr, domeMixer);
-	calibration.mapAxis(BB8::Direction::FB);
-	calibration.mapAxis(BB8::Direction::LR);
-	*/
-
-	BB8::Control control(servoFb, servoLr, domeMixer);
-
-	servoFb.goToHome();
-	servoLr.goToHome();
-	sleep_ms(100);
-
-	uint32_t outputTimer = millis();
-	while(true)
-	{
-		control.setDemand(BB8::Direction::LR, -domeMixer.base().x);
-		control.setDemand(BB8::Direction::FB, -domeMixer.base().y);
-		control.spin();
-
-		if ((millis() - outputTimer) > 10)
-		{
-			printf("%f %f %f \n",
-				control.getDemand(BB8::Direction::LR),
-				control.getCalcDemand(BB8::Direction::LR),
-				domeMixer.domeToBase().x
-				//control.getDemand(BB8::Direction::FB),
-				//control.getCalcDemand(BB8::Direction::FB),
-				//domeMixer.domeToBase().y
-			);
-			outputTimer = millis();
-		}
-	}
-
-	uint32_t duration = 5000;
-	while(true)
-	{
-		float progress = float(millis() % duration) / duration;
-		float demand = cos(2.0 * PI * progress) * 30.0;
-
-		control.setDemand(BB8::Direction::LR, demand);
-		control.spin();
-
-		if ((millis() - outputTimer) > 10)
-		{
-			printf("%f %f %f \n",
-				demand,
-				control.getCalcDemand(BB8::Direction::LR),
-				domeMixer.domeToBase().x
-			);
-			outputTimer = millis();
-		}
-	}
+	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
+	printf("Initialisation complete!\n");
 
 	finish();
-	return 0;
-
-	/*
-	const float demands[] = {0, 10, -10, 20, -20, 10, -10 , 0,  0};
-	const uint demandLen = 9;
-
-	uint32_t outputTimer = millis();
-	uint32_t demandTimer = millis();
-	uint index = 0;
-	bool hold = false;
-	while(index < (demandLen - 1))
-	{
-		control.spin();
-		
-		if ((millis() - demandTimer) > 5000)
-		{
-			index = (index + 1) % demandLen;
-			control.setDemand(BB8::Direction::LR, demands[index]);
-			demandTimer = millis();
-			hold = false;
-		}
-
-		if ((millis() - outputTimer) > 10)
-		{
-			printf("%f %f %f \n",
-				demands[index],
-				control.getCalcDemand(BB8::Direction::LR),
-				domeMixer.domeToBase().x
-			);
-			outputTimer = millis();
-		}
-	}
-	*/
-
-	/*
-	uint32_t timer = 0;
-	while (true)
-	{
-		domeMixer.update();
-
-		if ((millis() - timer) > 10)
-		{
-			printf("%f %f %f %f %f %f %f %f %f\n",
-				   domeMixer.dome().x, domeMixer.dome().y, domeMixer.dome().z,
-				   domeMixer.base().x, domeMixer.base().y, domeMixer.base().z,
-				   domeMixer.domeToBase().x, domeMixer.domeToBase().y, domeMixer.domeToBase().z);
-			timer = millis();
-		}
-	}
-	*/
-
-	finish();
-	return 0;
 }
