@@ -83,6 +83,9 @@ int main()
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
 	printf("Initialisation complete!\n");
 
+	xAxisServo.setPosition(0.0);
+	zAxisServo.setPosition(0.0);
+
 	while (true)
 	{
 		imu.update();
@@ -90,7 +93,7 @@ int main()
 		yAxisActual = imu.inclination().y;
 
 		printf("%f %f\n", xAxisActual, yAxisActual);
-		sleep_ms(100);
+		sleep_ms(50);
 	}
 
 	finish();

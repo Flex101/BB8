@@ -37,6 +37,7 @@ set(${PROJECT_NAME}_HDR
 	include/btstack_config.h
 	include/LynxMotionServo.h
 	include/LynxMotionPort.h
+	include/LynxMotionVars.h
 )
 
 set(${PROJECT_NAME}_SRC

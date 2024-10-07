@@ -10,12 +10,16 @@ public:
 	virtual ~LynxMotionServo() {}
 
 	bool init();
+	bool setPosition(float angleDeg);
 
-private:
+protected:
 	bool checkConnection(int retries = 2);
-	bool readPositionRange();
+	bool readAngularRange(float& result);
+	bool readValue(std::string variable, int& value);
+	bool writeValue(std::string variable, int value);
 
 private:
 	LynxMotionPort& port;
 	int servoId;
+	float angularRange;
 };
