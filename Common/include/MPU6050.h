@@ -24,13 +24,14 @@ public:
 	byte setAccelConfig(int config_num);
 	void setGyroOffsets(float x, float y, float z);
 	void setAccelOffsets(float x, float y, float z);
+	void setInclinationOffsets(float x, float y, float z);
 	void setFilterGyroCoef(float gyro_coef);
 	void setFilterAccelCoef(float accel_coef);
 	void update();
 
 	const Frame& gyro()        { return gyroFrame; }
 	const Frame& accel()       { return accelFrame; }
-	const Frame& inclination() { return inclinationFrame; }
+	const Frame& inclination() { return offsetInclinationFrame; }
 
 private:
 	void fetchData();
@@ -62,10 +63,12 @@ private:
 	byte buffer[14];
 	RawFrame rawGyroFrame;
 	RawFrame rawAccelFrame;
-	Frame gyroOffsets;
-	Frame accelOffsets;
 	Frame gyroFrame;
 	Frame accelFrame;
 	Frame angleAccelFrame;
 	Frame inclinationFrame;
+	Frame gyroOffsets;
+	Frame accelOffsets;
+	Frame inclinationOffsets;
+	Frame offsetInclinationFrame;
 };

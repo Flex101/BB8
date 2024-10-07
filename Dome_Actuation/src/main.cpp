@@ -11,20 +11,23 @@ uart_inst_t* UART_ID = uart0;
 const uint8_t UART_TX_PIN = 16;
 const uint8_t UART_RX_PIN = 17;
 const byte IMU_DOME_ID = 0x69;
+const byte IMU_I2C = 1;
 const byte IMU_SDA = 10;
 const byte IMU_SCL = 11;
-float xAxisValue = 0;
-float yAxisValue = 0;
-float zAxisValue = 0;
+float xAxisDemand = 0;
+float yAxisDemand = 0;
+float zAxisDemand = 0;
+float xAxisActual = 0;
+float yAxisActual = 0;
 
 void dataHandler(uint8_t* packet, uint16_t size)
 {
 	if (size != (3*sizeof(float))) return;
-	memcpy(&xAxisValue, packet, sizeof(float));
+	memcpy(&xAxisDemand, packet, sizeof(float));
 	packet += sizeof(float);
-	memcpy(&yAxisValue, packet, sizeof(float));
+	memcpy(&yAxisDemand, packet, sizeof(float));
 	packet += sizeof(float);
-	memcpy(&zAxisValue, packet, sizeof(float));
+	memcpy(&zAxisDemand, packet, sizeof(float));
 	//printf("Axis value: %f\n", axisValue);
 }
 
@@ -70,8 +73,25 @@ int main()
 
 	if (!success) abort("Failed to initialise servos");
 
+	MPU6050 imu;
+	imu.setPorts(IMU_I2C, IMU_SDA, IMU_SCL);
+	imu.init(IMU_DOME_ID);
+	imu.calcOffsets(false, false, true, true, true, true);   // Stabilises sensor
+	imu.setInclinationOffsets(1.5, 0.8, 0.0);				 // Accounts for error in mounting
+	if (!imu.test()) abort("IMU_DOME not found");
+
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
 	printf("Initialisation complete!\n");
+
+	while (true)
+	{
+		imu.update();
+		xAxisActual = imu.inclination().x;
+		yAxisActual = imu.inclination().y;
+
+		printf("%f %f\n", xAxisActual, yAxisActual);
+		sleep_ms(100);
+	}
 
 	finish();
 }

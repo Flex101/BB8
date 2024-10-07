@@ -17,7 +17,7 @@ bool LynxMotionPort::init()
 {
 	uart_init(uartPort, BAUD_RATE);
 	gpio_set_function(uartTxPin, GPIO_FUNC_UART);
-    gpio_set_function(uartRxPin, GPIO_FUNC_UART);
+	gpio_set_function(uartRxPin, GPIO_FUNC_UART);
 	uart_set_hw_flow(uartPort, false, false);
 	uart_set_format(uartPort, DATA_BITS, STOP_BITS, PARITY);
 	uart_set_fifo_enabled(uartPort, false);
@@ -33,9 +33,9 @@ bool LynxMotionPort::send(const std::string& outgoingMsg, std::string& incomingM
 	}
 
 	uart_puts(uartPort, outgoingMsg.c_str());
-	nicePrint("Sent: " + outgoingMsg);
+	//nicePrint("Sent: " + outgoingMsg);
 	bool success = readLine(incomingMsg);
-	nicePrint("Reply: " + incomingMsg);
+	//nicePrint("Reply: " + incomingMsg);
 	return success;
 }
 

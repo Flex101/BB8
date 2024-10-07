@@ -17,9 +17,14 @@ MPU6050::MPU6050()
 	inclinationFrame.y = 0.0;
 	inclinationFrame.z = 0.0;
 
+	offsetInclinationFrame.x = 0.0;
+	offsetInclinationFrame.y = 0.0;
+	offsetInclinationFrame.z = 0.0;
+
 	setFilterGyroCoef(DEFAULT_GYRO_COEFF);
 	setGyroOffsets(0,0,0);
 	setAccelOffsets(0,0,0);
+	setInclinationOffsets(0,0,0);
 }
 
 void MPU6050::setPorts(byte i2c, byte sda, byte scl)
@@ -174,6 +179,13 @@ void MPU6050::setAccelOffsets(float x, float y, float z)
 	accelOffsets.z = z;
 }
 
+void MPU6050::setInclinationOffsets(float x, float y, float z)
+{
+	inclinationOffsets.x = x;
+	inclinationOffsets.y = y;
+	inclinationOffsets.z = z;
+}
+
 void MPU6050::setFilterGyroCoef(float gyro_coef)
 {
 	if ((gyro_coef < 0) or (gyro_coef > 1))
@@ -202,6 +214,10 @@ void MPU6050::update()
 	inclinationFrame.x  = wrap(filterGyroCoef*(angleAccelFrame.x + wrap(inclinationFrame.x +     gyroFrame.x*dt - angleAccelFrame.x,180)) + (1.0-filterGyroCoef)*angleAccelFrame.x,180);
 	inclinationFrame.y  = wrap(filterGyroCoef*(angleAccelFrame.y + wrap(inclinationFrame.y + sgZ*gyroFrame.y*dt - angleAccelFrame.y, 90)) + (1.0-filterGyroCoef)*angleAccelFrame.y, 90);
 	inclinationFrame.z += gyroFrame.z * dt; // not wrapped
+
+	offsetInclinationFrame.x = inclinationFrame.x - inclinationOffsets.x;
+	offsetInclinationFrame.y = inclinationFrame.y - inclinationOffsets.y;
+	offsetInclinationFrame.z = inclinationFrame.z - inclinationOffsets.z;
 }
 
 void MPU6050::fetchData()
