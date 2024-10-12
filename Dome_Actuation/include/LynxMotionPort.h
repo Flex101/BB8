@@ -11,7 +11,7 @@ public:
 	virtual ~LynxMotionPort() {}
 
 	bool init();
-
+	void send(const std::string& outgoingMsg);
 	bool send(const std::string& outgoingMsg, std::string& incomingMsg);
 
 protected:

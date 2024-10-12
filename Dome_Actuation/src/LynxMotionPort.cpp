@@ -3,6 +3,7 @@
 #include "pico/stdlib.h"
 #include <stdio.h>
 
+const bool DEBUG_MSG = false;
 const uint BAUD_RATE = 115200;
 const uint DATA_BITS = 8;
 const uint STOP_BITS = 1;
@@ -25,17 +26,29 @@ bool LynxMotionPort::init()
 	return true;
 }
 
-bool LynxMotionPort::send(const std::string& outgoingMsg, std::string& incomingMsg)
+void LynxMotionPort::send(const std::string &outgoingMsg)
 {
 	while(!uart_is_writable(uartPort))
 	{
+		if (DEBUG_MSG) nicePrint("Wating to send...");
 		sleep_ms(1);
 	}
 
+	if (DEBUG_MSG) nicePrint("Sending...");
 	uart_puts(uartPort, outgoingMsg.c_str());
-	//nicePrint("Sent: " + outgoingMsg);
+	if (DEBUG_MSG) nicePrint("Sent: " + outgoingMsg);
+}
+
+bool LynxMotionPort::send(const std::string& outgoingMsg, std::string& incomingMsg)
+{
+	send(outgoingMsg);
+
 	bool success = readLine(incomingMsg);
-	//nicePrint("Reply: " + incomingMsg);
+	if (DEBUG_MSG)
+	{
+		if (success) nicePrint("Reply: " + incomingMsg);
+		else nicePrint("Reply: FAILED!");
+	}
 	return success;
 }
 

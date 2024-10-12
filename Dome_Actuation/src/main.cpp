@@ -14,20 +14,20 @@ const byte IMU_DOME_ID = 0x69;
 const byte IMU_I2C = 1;
 const byte IMU_SDA = 10;
 const byte IMU_SCL = 11;
-float xAxisDemand = 0;
-float yAxisDemand = 0;
-float zAxisDemand = 0;
-float xAxisActual = 0;
-float yAxisActual = 0;
+float fbDemand = 0;
+float lrDemand = 0;
+float spinDemand = 0;
+float fbActual = 0;
+float lrActual = 0;
 
 void dataHandler(uint8_t* packet, uint16_t size)
 {
 	if (size != (3*sizeof(float))) return;
-	memcpy(&xAxisDemand, packet, sizeof(float));
+	memcpy(&fbDemand, packet, sizeof(float));
 	packet += sizeof(float);
-	memcpy(&yAxisDemand, packet, sizeof(float));
+	memcpy(&lrDemand, packet, sizeof(float));
 	packet += sizeof(float);
-	memcpy(&zAxisDemand, packet, sizeof(float));
+	memcpy(&spinDemand, packet, sizeof(float));
 	//printf("Axis value: %f\n", axisValue);
 }
 
@@ -62,14 +62,14 @@ int main()
 	LynxMotionPort servoPort(UART_ID, UART_TX_PIN, UART_RX_PIN);
 	bool success = servoPort.init();
 
-	LynxMotionServo yAxisServo(servoPort, 0);
-	success &= yAxisServo.init();
+	LynxMotionServo fbServo(servoPort, 0);
+	success &= fbServo.init();
 
-	LynxMotionServo xAxisServo(servoPort, 1);
-	success &= xAxisServo.init();
+	LynxMotionServo lrServo(servoPort, 1);
+	success &= lrServo.init();
 
-	LynxMotionServo zAxisServo(servoPort, 2);
-	success &= zAxisServo.init();
+	LynxMotionServo spinServo(servoPort, 2);
+	success &= spinServo.init();
 
 	if (!success) abort("Failed to initialise servos");
 
@@ -83,17 +83,29 @@ int main()
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
 	printf("Initialisation complete!\n");
 
-	xAxisServo.setPosition(0.0);
-	zAxisServo.setPosition(0.0);
+	lrServo.enable();
+	fbServo.enable();
+	spinServo.enable();
 
+	success = lrServo.setPosition(0.0);
+	success &= fbServo.setPosition(-30.0);
+	success &= spinServo.setVelocity(-90.0f);
+	if (!success) abort("Failed to home servos!");
+
+	nicePrint("Starting loop...");
 	while (true)
 	{
 		imu.update();
-		xAxisActual = imu.inclination().x;
-		yAxisActual = imu.inclination().y;
+		fbActual = imu.inclination().x;
+		lrActual = imu.inclination().y;
 
-		printf("%f %f\n", xAxisActual, yAxisActual);
-		sleep_ms(50);
+		float servoPos = NAN;
+		success = spinServo.update();
+		success &= spinServo.getPosition(servoPos);
+		if (!success) printf("Failed to update servo!\n");		
+
+		printf("%f %f %.1f\n", fbActual, lrActual, servoPos);
+		sleep_ms(1);
 	}
 
 	finish();
