@@ -4,13 +4,31 @@ import serial
 import pygame
 import struct
 import time
+import os
 
+RED = "\033[31m"
+GREEN = "\033[32m"
+ORANGE = "\033[33m"
+YELLOW = "\033[93m"
+BLUE = "\033[34m"
+CYAN = "\033[36m"
+RESET = "\033[0m"
 PRINT = False   # Enabling this will reduce performance
+
+class RcxBoards:
+	roll = '/dev/rfcomm0'
+	tilt = '/dev/rfcomm1'
 
 class ControllerNames:
 	ball = "PLAYSTATION(R)3 Controller (04:76:6E:99:8D:EF)"
 	dome = "PLAYSTATION(R)3 Controller (00:26:43:C9:DD:9E)"
 
+def abort():
+	print(f"")
+	print(f"{RED}Program terminated.{RESET}")
+	print(f"---------------------------------")
+	print(f"")
+	exit()
 
 def filterAxis(value:float, center:float, deadzone:float, invert:bool):
 	
@@ -36,6 +54,11 @@ def buildPacket(value:float):
 	packet += struct.pack("f", value)
 	return packet
 
+os.system('clear')
+print(f"{ORANGE}BB-8 CR-X Drive System Controller{RESET}")
+print(f"{ORANGE}---------------------------------{RESET}")
+print(f"")
+print(f"Looking for controllers...")
 
 pygame.init()
 pygame.joystick.init()
@@ -61,12 +84,25 @@ for controller in controllers:
 			continue
 
 if (ballController == None):
-	print("Couldn't find ball controller")
+	print(f"{YELLOW}Couldn't find ball controller.{RESET}")
 if (domeController == None):
-	print("Couldn't find dome controller")
+	print(f"{YELLOW}Couldn't find dome controller.{RESET}")
 if (ballController == None or domeController == None):
-	exit()
-print("Found ball and dome controllers")
+	abort()
+print(f"{GREEN}Found ball and dome controllers.{RESET}")
+print(f"")
+
+print(f"Looking for RC-X boards...")
+gotRollBoard = os.path.isfile(RcxBoards.roll)
+gotTiltBoard = os.path.isfile(RcxBoards.tilt)
+if (gotRollBoard == False):
+	print(f"{YELLOW}Couldn't find roll board.{RESET}")
+if (gotTiltBoard == False):
+	print(f"{YELLOW}Couldn't find tilt board.{RESET}")
+if (gotRollBoard == False or gotTiltBoard == False):
+	abort()
+print(f"{GREEN}Found roll and tilt boards.{RESET}")
+print(f"")
 
 mixer = BallMixer(ballController)
 
