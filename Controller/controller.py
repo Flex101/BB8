@@ -4,6 +4,7 @@ import serial
 import pygame
 import struct
 import time
+import signal
 import os
 
 RED = "\033[31m"
@@ -15,6 +16,9 @@ CYAN = "\033[36m"
 RESET = "\033[0m"
 PRINT = False   # Enabling this will reduce performance
 
+serialPortRoll = None
+serialPortTilt = None
+
 class RcxBoards:
 	roll = '/dev/rfcomm0'
 	tilt = '/dev/rfcomm1'
@@ -22,6 +26,16 @@ class RcxBoards:
 class ControllerNames:
 	ball = "PLAYSTATION(R)3 Controller (04:76:6E:99:8D:EF)"
 	dome = "PLAYSTATION(R)3 Controller (00:26:43:C9:DD:9E)"
+
+def handle_terminate(signum, frame):
+	print("Closing serial ports...")
+	if (serialPortRoll != None):
+		serialPortRoll.close()
+	if (serialPortTilt != None):
+		serialPortTilt.close()
+	print("Exiting...")
+
+	
 
 def abort():
 	print(f"")
