@@ -27,16 +27,6 @@ class ControllerNames:
 	ball = "PLAYSTATION(R)3 Controller (04:76:6E:99:8D:EF)"
 	dome = "PLAYSTATION(R)3 Controller (00:26:43:C9:DD:9E)"
 
-def handle_terminate(signum, frame):
-	print("Closing serial ports...")
-	if (serialPortRoll != None):
-		serialPortRoll.close()
-	if (serialPortTilt != None):
-		serialPortTilt.close()
-	print("Exiting...")
-
-	
-
 def abort():
 	print(f"")
 	print(f"{RED}Program terminated.{RESET}")
@@ -68,90 +58,103 @@ def buildPacket(value:float):
 	packet += struct.pack("f", value)
 	return packet
 
-os.system('clear')
-print(f"{ORANGE}BB-8 CR-X Drive System Controller{RESET}")
-print(f"{ORANGE}---------------------------------{RESET}")
-print(f"")
-print(f"Looking for controllers...")
+try:
+	os.system('clear')
+	print(f"{ORANGE}BB-8 CR-X Drive System Controller{RESET}")
+	print(f"{ORANGE}---------------------------------{RESET}")
+	print(f"")
+	print(f"Looking for controllers...")
 
-pygame.init()
-pygame.joystick.init()
-controllerCount = pygame.joystick.get_count()
-print(f"Controllers found: {controllerCount}")
+	pygame.init()
+	pygame.joystick.init()
+	controllerCount = pygame.joystick.get_count()
+	print(f"Controllers found: {controllerCount}")
 
-controllers = []
-for i in range(pygame.joystick.get_count()):
-	controller = GameController()
-	controller.connect(i)
-	controllers.append(controller)
+	controllers = []
+	for i in range(pygame.joystick.get_count()):
+		controller = GameController()
+		controller.connect(i)
+		controllers.append(controller)
 
-ballController:GameController|None = None
-domeController:GameController|None = None
+	ballController:GameController|None = None
+	domeController:GameController|None = None
 
-for controller in controllers:
-	match controller.controller.get_name():
-		case ControllerNames.ball:
-			ballController = controller
-			continue
-		case ControllerNames.dome:
-			domeController = controller
-			continue
+	for controller in controllers:
+		match controller.controller.get_name():
+			case ControllerNames.ball:
+				ballController = controller
+				continue
+			case ControllerNames.dome:
+				domeController = controller
+				continue
 
-if (ballController == None):
-	print(f"{YELLOW}Couldn't find ball controller.{RESET}")
-if (domeController == None):
-	print(f"{YELLOW}Couldn't find dome controller.{RESET}")
-if (ballController == None or domeController == None):
-	abort()
-print(f"{GREEN}Found ball and dome controllers.{RESET}")
-print(f"")
+	if (ballController == None):
+		print(f"{YELLOW}Couldn't find ball controller.{RESET}")
+	if (domeController == None):
+		print(f"{YELLOW}Couldn't find dome controller.{RESET}")
+	if (ballController == None or domeController == None):
+		abort()
+	print(f"{GREEN}Found ball and dome controllers.{RESET}")
+	print(f"")
 
-print(f"Looking for RC-X boards...")
-gotRollBoard = os.path.isfile(RcxBoards.roll)
-gotTiltBoard = os.path.isfile(RcxBoards.tilt)
-if (gotRollBoard == False):
-	print(f"{YELLOW}Couldn't find roll board.{RESET}")
-if (gotTiltBoard == False):
-	print(f"{YELLOW}Couldn't find tilt board.{RESET}")
-if (gotRollBoard == False or gotTiltBoard == False):
-	abort()
-print(f"{GREEN}Found roll and tilt boards.{RESET}")
-print(f"")
+	print(f"Looking for RC-X boards...")
+	gotRollBoard = os.path.isfile(RcxBoards.roll)
+	gotTiltBoard = os.path.isfile(RcxBoards.tilt)
+	if (gotRollBoard == False):
+		print(f"{YELLOW}Couldn't find roll board.{RESET}")
+	if (gotTiltBoard == False):
+		print(f"{YELLOW}Couldn't find tilt board.{RESET}")
+	if (gotRollBoard == False or gotTiltBoard == False):
+		abort()
+	print(f"{GREEN}Found roll and tilt boards.{RESET}")
+	print(f"")
 
-mixer = BallMixer(ballController)
+	mixer = BallMixer(ballController)
 
-serialPortRoll = serial.Serial('/dev/rfcomm0')
-serialPortTilt = serial.Serial('/dev/rfcomm1')
+	serialPortRoll = serial.Serial('/dev/rfcomm0')
+	serialPortTilt = serial.Serial('/dev/rfcomm1')
 
-while (True):
-	pygame.event.get()
-	ballController.update()
-	domeController.update()
+	print("Running...")
 
-	if PRINT:
-		print("Ball:", end=' ')
-		for i in range(len(ballController.axis_data)):
-			print("{:.3f}".format(ballController.axis_data[i]).rjust(6), end=' ')
-		for i in range(len(ballController.button_data)):
-			print(ballController.button_data[i], end=' ')
-		print()
+	while (True):
+		pygame.event.get()
+		ballController.update()
+		domeController.update()
 
-		print("Dome:", end=' ')
-		for i in range(len(domeController.axis_data)):
-			print("{:.3f}".format(domeController.axis_data[i]).rjust(6), end=' ')
-		for i in range(len(domeController.button_data)):
-			print(domeController.button_data[i], end=' ')
-		print()
+		if PRINT:
+			print("Ball:", end=' ')
+			for i in range(len(ballController.axis_data)):
+				print("{:.3f}".format(ballController.axis_data[i]).rjust(6), end=' ')
+			for i in range(len(ballController.button_data)):
+				print(ballController.button_data[i], end=' ')
+			print()
 
-	roll = mixer.getRoll()
-	tilt = mixer.getTilt()
+			print("Dome:", end=' ')
+			for i in range(len(domeController.axis_data)):
+				print("{:.3f}".format(domeController.axis_data[i]).rjust(6), end=' ')
+			for i in range(len(domeController.button_data)):
+				print(domeController.button_data[i], end=' ')
+			print()
 
-	# Use shoulder button as roll enable
-	if (ballController.getShoulderButton() == False):
-		roll = 0.0
+		roll = mixer.getRoll()
+		tilt = mixer.getTilt()
 
-	packet = buildPacket(roll)
-	serialPortRoll.write(packet)
-	packet = buildPacket(tilt)
-	serialPortTilt.write(packet)
-	time.sleep(0.01)
+		# Use shoulder button as roll enable
+		if (ballController.getShoulderButton() == False):
+			roll = 0.0
+
+		packet = buildPacket(roll)
+		serialPortRoll.write(packet)
+		packet = buildPacket(tilt)
+		serialPortTilt.write(packet)
+		time.sleep(0.01)
+
+finally:
+
+	print("Closing serial ports...")
+	if (serialPortRoll != None):
+		serialPortRoll.close()
+	if (serialPortTilt != None):
+		serialPortTilt.close()
+	print("Exiting...")
+
