@@ -28,7 +28,7 @@ class ControllerNames:
 	ball = "PLAYSTATION(R)3 Controller (04:76:6E:99:8D:EF)"
 	dome = "PLAYSTATION(R)3 Controller (00:26:43:C9:DD:9E)"
 
-def clean_term():
+def clean_term(signum, frame):
 	terminate = True
 
 # Register the custom signal handler for SIGINT (Ctrl+C)
