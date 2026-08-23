@@ -29,6 +29,7 @@ class ControllerNames:
 	dome = "PLAYSTATION(R)3 Controller (00:26:43:C9:DD:9E)"
 
 def clean_term(signum, frame):
+	global terminate
 	terminate = True
 
 # Register the custom signal handler for SIGINT (Ctrl+C)
