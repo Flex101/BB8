@@ -105,22 +105,39 @@ try:
 	print(f"{GREEN}Found ball and dome controllers.{RESET}")
 	print(f"")
 
-	print(f"Looking for RC-X boards...")
-	gotRollBoard = os.path.isfile(RcxBoards.roll)
-	gotTiltBoard = os.path.isfile(RcxBoards.tilt)
+	print(f"Looking for RC-X board bound serial ports...")
+	gotRollBoard = os.path.exists(RcxBoards.roll)
+	gotTiltBoard = os.path.exists(RcxBoards.tilt)
 	if (gotRollBoard == False):
-		print(f"{YELLOW}Couldn't find roll board.{RESET}")
+		print(f"{YELLOW}Couldn't find roll board bound port.{RESET}")
 	if (gotTiltBoard == False):
-		print(f"{YELLOW}Couldn't find tilt board.{RESET}")
+		print(f"{YELLOW}Couldn't find tilt board bound port.{RESET}")
 	if (gotRollBoard == False or gotTiltBoard == False):
 		abort()
-	print(f"{GREEN}Found roll and tilt boards.{RESET}")
+	print(f"{GREEN}Found roll and tilt board bound ports.{RESET}")
 	print(f"")
 
 	mixer = BallMixer(ballController)
 
 	serialPortRoll = serial.Serial('/dev/rfcomm0')
 	serialPortTilt = serial.Serial('/dev/rfcomm1')
+
+	print("Connecting...")
+
+	try:
+		serialPortRoll.open()
+	except:
+		print(f"{YELLOW}Unable to open connection to roll board!{RESET}")
+		abort()
+
+	try:
+		gotTiltBoard.open()
+	except:
+		print(f"{YELLOW}Unable to open connection to tilt board!{RESET}")
+		abort()
+
+	print(f"{GREEN}Connected to roll and tilt boards.{RESET}")
+	print(f"")
 
 	print("Running...")
 
