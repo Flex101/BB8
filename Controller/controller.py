@@ -125,14 +125,14 @@ try:
 	print("Connecting...")
 
 	try:
-		serialPortRoll.open()
+		if not serialPortRoll.is_open(): serialPortRoll.open()
 	except Exception as e:
 		print(f"{YELLOW}Unable to open connection to roll board!{RESET}")
 		print(f"{YELLOW}{repr(e)}{RESET}")
 		abort()
 
 	try:
-		serialPortTilt.open()
+		if not serialPortTilt.is_open(): serialPortTilt.open()
 	except Exception as e:
 		print(f"{YELLOW}Unable to open connection to tilt board!{RESET}")
 		print(f"{YELLOW}{repr(e)}{RESET}")
