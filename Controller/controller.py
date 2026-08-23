@@ -16,6 +16,7 @@ CYAN = "\033[36m"
 RESET = "\033[0m"
 PRINT = False   # Enabling this will reduce performance
 
+terminate = False
 serialPortRoll = None
 serialPortTilt = None
 
@@ -26,6 +27,12 @@ class RcxBoards:
 class ControllerNames:
 	ball = "PLAYSTATION(R)3 Controller (04:76:6E:99:8D:EF)"
 	dome = "PLAYSTATION(R)3 Controller (00:26:43:C9:DD:9E)"
+
+def clean_term():
+	terminate = True
+
+# Register the custom signal handler for SIGINT (Ctrl+C)
+signal.signal(signal.SIGINT, clean_term)
 
 def abort():
 	print(f"")
@@ -116,7 +123,7 @@ try:
 
 	print("Running...")
 
-	while (True):
+	while not terminate:
 		pygame.event.get()
 		ballController.update()
 		domeController.update()
@@ -148,6 +155,8 @@ try:
 		packet = buildPacket(tilt)
 		serialPortTilt.write(packet)
 		time.sleep(0.01)
+
+	print("Terminated cleanly")
 
 finally:
 
