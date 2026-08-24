@@ -124,15 +124,25 @@ try:
 
 	print("Connecting...")
 
-	if not serialPortRoll.cts and not serialPortRoll.dsr:
-		print(f"{YELLOW}Unable to open connection to roll board!{RESET}")
+	packet = buildPacket(0.0)
+			
+	try:
+		print(f"Attempting to communicate with roll board...")
+		serialPortRoll.write(packet)
+		print(f"{GREEN}Success!{RESET}")
+	except:
+		print(f"{YELLOW}Failed to communicate with roll board!{RESET}")
 		abort()
 
-	if not serialPortTilt.cts and not serialPortTilt.dsr:
-		print(f"{YELLOW}Unable to open connection to tilt board!{RESET}")
+	try:
+		print(f"Attempting to communicate with tilt board...")
+		serialPortTilt.write(packet)
+		print(f"{GREEN}Success!{RESET}")
+	except:
+		print(f"{YELLOW}Failed to communicate with tilt board!{RESET}")
 		abort()
 
-	print(f"{GREEN}Connected to roll and tilt boards.{RESET}")
+	print(f"{GREEN}Communicated successfully with roll and tilt boards.{RESET}")
 	print(f"")
 
 	print("Running...")
