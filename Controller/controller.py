@@ -119,23 +119,17 @@ try:
 
 	mixer = BallMixer(ballController)
 
-	serialPortRoll = serial.Serial('/dev/rfcomm0')
-	serialPortTilt = serial.Serial('/dev/rfcomm1')
+	serialPortRoll = serial.Serial('/dev/rfcomm0', timeout=1)
+	serialPortTilt = serial.Serial('/dev/rfcomm1', timeout=1)
 
 	print("Connecting...")
 
-	try:
-		if not serialPortRoll.is_open: serialPortRoll.open()
-	except Exception as e:
+	if not serialPortRoll.cts and not serialPortRoll.dsr:
 		print(f"{YELLOW}Unable to open connection to roll board!{RESET}")
-		print(f"{YELLOW}{repr(e)}{RESET}")
 		abort()
 
-	try:
-		if not serialPortTilt.is_open: serialPortTilt.open()
-	except Exception as e:
+	if not serialPortTilt.cts and not serialPortTilt.dsr:
 		print(f"{YELLOW}Unable to open connection to tilt board!{RESET}")
-		print(f"{YELLOW}{repr(e)}{RESET}")
 		abort()
 
 	print(f"{GREEN}Connected to roll and tilt boards.{RESET}")
