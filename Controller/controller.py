@@ -1,10 +1,12 @@
 from GameController import GameController
 from BallMixer import BallMixer
+from enum import Enum
 import serial
 import pygame
 import struct
 import time
 import signal
+import subprocess
 import os
 
 RED = "\033[31m"
@@ -19,6 +21,12 @@ PRINT = False   # Enabling this will reduce performance
 terminate = False
 serialPortRoll = None
 serialPortTilt = None
+
+class PortState(Enum):
+	UNKNOWN = 0
+	CONFIGURING = 1
+	CONNECTED = 2
+	CLOSED = 3
 
 class RcxBoards:
 	roll = '/dev/rfcomm0'
@@ -41,6 +49,17 @@ def abort():
 	print(f"---------------------------------")
 	print(f"")
 	exit()
+
+def getPortState(port):
+	index = port.replace("/dev/rfcomm","")
+	output = subprocess.check_output(["rfcomm", "show", index], stderr=subprocess.STDOUT).decode('utf-8')
+	if "config" in output:
+		return PortState.CONFIGURING
+	if "connected" in output:
+		return PortState.CONNECTED
+	if "closed" in output:
+		return PortState.CLOSED
+	return PortState.UNKNOWN
 
 def filterAxis(value:float, center:float, deadzone:float, invert:bool):
 	
@@ -119,31 +138,20 @@ try:
 
 	mixer = BallMixer(ballController)
 
-	serialPortRoll = serial.Serial('/dev/rfcomm0', timeout=1)
-	serialPortTilt = serial.Serial('/dev/rfcomm1', timeout=1)
+	serialPortRoll = serial.Serial(RcxBoards.roll, timeout=1)
+	serialPortTilt = serial.Serial(RcxBoards.tilt, timeout=1)
 
-	print("Connecting...")
+	rollPortState = PortState.UNKNOWN
+	tiltPortState = PortState.UNKNOWN
 
-	packet = buildPacket(0.0)
-			
-	try:
-		print(f"Attempting to communicate with roll board...")
-		serialPortRoll.write(packet)
-		print(f"{GREEN}Success!{RESET}")
-	except:
-		print(f"{YELLOW}Failed to communicate with roll board!{RESET}")
-		abort()
+	print("Connecting to RC-X boards...")
 
-	try:
-		print(f"Attempting to communicate with tilt board...")
-		serialPortTilt.write(packet)
-		print(f"{GREEN}Success!{RESET}")
-	except:
-		print(f"{YELLOW}Failed to communicate with tilt board!{RESET}")
-		abort()
+	while (rollPortState != PortState.CONNECTED) or (tiltPortState != PortState.CONNECTED):
+		rollPortState = getPortState(RcxBoards.roll)
+		tiltPortState = getPortState(RcxBoards.tilt)
 
-	print(f"{GREEN}Communicated successfully with roll and tilt boards.{RESET}")
-	print(f"")
+		print(rollPortState)
+		print(tiltPortState)
 
 	print("Running...")
 
