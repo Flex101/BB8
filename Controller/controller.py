@@ -144,7 +144,7 @@ try:
 	rollPortState = PortState.UNKNOWN
 	tiltPortState = PortState.UNKNOWN
 
-	print("Connecting to RC-X boards...", end="")
+	print("Connecting to RC-X boards...", end="", flush=True)
 
 	while (rollPortState != PortState.CONNECTED) or (tiltPortState != PortState.CONNECTED):
 		rollPortState = getPortState(RcxBoards.roll)
@@ -160,7 +160,7 @@ try:
 			print(f"{YELLOW}Failed to connect to tilt board.{RESET}")
 			abort()
 
-		print(".", end="")
+		print(".", end="", flush=True)
 		time.sleep(0.5)
 
 	print("")
