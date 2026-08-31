@@ -6,22 +6,24 @@
 #include "Common.h"
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
+#include "hardware/watchdog.h"
 #include <string>
 #include <math.h>
 #include <stdio.h>
 
-const uint LED_PIN = 25;
 const uint MTR_PWM = 21;
 const uint MTR_DIR = 20;
 const uint ENC_A   =  0;
 const uint ENC_B   =  1;
 const uint POT_ADC =  0;
-float tiltAxisValue = 0;
+float tiltAxisValueBuff = 0.0;
+uint32_t lastUpdate_Comms = 0;
 
 void dataHandler(uint8_t* packet, uint16_t size)
 {
-	if (size != 4) return;
-	memcpy(&tiltAxisValue, packet, 4);
+	if (size != sizeof(float)) return;
+	memcpy(&tiltAxisValueBuff, packet, sizeof(float));
+	lastUpdate_Comms = to_ms_since_boot(get_absolute_time());
 	//printf("Axis value: %f\n", axisValue);
 }
 
@@ -37,9 +39,15 @@ void abort(const std::string& msg)
 		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
 	}
 }
+
 int main()
 {
 	stdio_init_all();
+
+	if (watchdog_caused_reboot()) {
+        printf("WATCHDOG RESET!!!\n");
+    }
+
 	sleep_ms(3000);
 
 	if (cyw43_arch_init()) abort("Failed to initialise CYW43 driver.");
@@ -77,6 +85,7 @@ int main()
 	float target = 0.0f;
 	float actual = 0.0f;
 	float demand = 0.0f;
+	float tweak = -0.1f;	// This is used to adjust the center position
 
 	uint32_t outputTimer = millis();
 	uint32_t prevMillis = millis();
@@ -85,9 +94,11 @@ int main()
 	sleep_ms(3000);
 
 	uint32_t now = to_ms_since_boot(get_absolute_time());
-	uint32_t lastUpdate_Print = 0;
 	uint32_t lastUpdate_Motor = 0;
+	uint32_t lastUpdate_Print = 0;
+	float tiltAxisValue = 0.0;
 
+	watchdog_enable(1000, true);
 	while (true)
 	{
 		now = to_ms_since_boot(get_absolute_time());
@@ -96,9 +107,17 @@ int main()
 		encoder.update();
 		pot.update();
 
+		tiltAxisValue = tiltAxisValueBuff;
+		if ((now - lastUpdate_Comms) > 1000)
+		{
+			tiltAxisValue = 0.0;
+		}
+
 		target = tiltAxisValue;
 		if (target >  0.5) target =  0.5;
 		if (target < -0.5) target = -0.5;
+
+		target += tweak;
 
 		if (pot.isReady())
 		{
@@ -114,10 +133,12 @@ int main()
 			//prevMillis = millis();
 		}
 
-		if (now - lastUpdate_Print > 100)
+		if ((now - lastUpdate_Print) > 100)
 		{
 			printf("%f %f\n", tiltAxisValue, actual);
 		}
+
+		watchdog_update();
 	}
 
 	finish();
