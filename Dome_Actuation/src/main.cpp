@@ -24,11 +24,16 @@ float fbError = 0.0f;
 float fbServoDemand = 0.0f;
 
 // Left to right axis
-float lrDemand = 0.0f;
+float lrControlValueBuff = 0.0f;
+float lrControlValue = 0.0f;
 float lrImuActual = 0.0f;
-float lrServoActual = 0.0f;
-float lrError = 0.0f;
+float lrImuActual_Smooth = 0.0f;
 float lrServoDemand = 0.0f;
+float lrServoDemand_Smooth = 0.0f;
+float lrServoActual = 0.0f;
+const float imu2servoScale = 4.0f;
+RunningAverage lrImuSmoothing(50);
+RunningAverage lrDemandSmoothing(50);
 
 // Spin axis
 float spinDemand = 0.0f;
@@ -40,7 +45,7 @@ void dataHandler(uint8_t* packet, uint16_t size)
 	if (size != (3*sizeof(float))) return;
 	memcpy(&fbDemand, packet, sizeof(float));
 	packet += sizeof(float);
-	memcpy(&lrDemand, packet, sizeof(float));
+	memcpy(&lrControlValueBuff, packet, sizeof(float));
 	packet += sizeof(float);
 	memcpy(&spinDemand, packet, sizeof(float));
 	//printf("Axis value: %f\n", axisValue);
@@ -95,8 +100,6 @@ int main()
 	imu.setInclinationOffsets(1.5, 0.8, 0.0);				 // Accounts for error in mounting
 	if (!imu.test()) abort("IMU_BASE not found");
 
-	RunningAverage lrSmoothing(10);
-
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
 	printf("Initialisation complete!\n");
 
@@ -133,16 +136,30 @@ int main()
 		lrImuActual = -imu.inclination().y;
 		fbImuActual = imu.inclination().x;
 
+		lrImuSmoothing.append(lrImuActual);
+
 		if (lrServo.update())
 		{
 		// 	lrError = lrDemand - lrImuActual;
 		 	success = lrServo.getPosition(lrServoActual);
 			if (success)
 			{
-				//lrServoDemand = lrError * MAX_VELOCITY * (float(dt)/1000) * 0.5f;
-				lrServoDemand = lrImuActual * 4;
-				lrError = abs(lrServoActual - lrServoDemand);
-				if (lrError > 2) success = lrServo.setPosition(lrServoDemand);
+				// lrServoDemand = lrImuActual * 4;
+				// lrError = abs(lrServoActual - lrServoDemand);
+				// if (lrError > 2) success = lrServo.setPosition(lrServoDemand);
+
+				if (lrImuSmoothing.isFull())
+				{
+					lrImuActual_Smooth = lrImuSmoothing.getAverage();
+					lrServoDemand = lrImuActual_Smooth * imu2servoScale;
+					lrDemandSmoothing.append(lrServoDemand);
+				}
+
+				if (lrDemandSmoothing.isFull())
+				{
+					lrServoDemand_Smooth = lrDemandSmoothing.getAverage();
+					success = lrServo.setPosition(lrServoDemand_Smooth);
+				}
 			}
 			if (!success) msg += "Failed to set lrServo postition";
 		}
@@ -170,7 +187,7 @@ int main()
 		if (now - lastPrint > 100)
 		{
 			//printf("%f %f %f %s\n", fbImuActual, fbError, fbServoDemand, msg.c_str());
-			printf("%f %f %s\n", lrServoActual, lrImuActual, msg.c_str());
+			printf("%f %f %f %s\n", lrImuActual_Smooth, lrServoDemand_Smooth, lrServoActual, msg.c_str());
 			msg =  "";
 			lastPrint = now;
 		}
