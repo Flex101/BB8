@@ -91,11 +91,38 @@ void MPU6050::calcOffsets(bool accel_x, bool accel_y, bool accel_z, bool gyro_x,
 	if (gyro_z)  { gyroOffsets.z  = ag[5] / CALIB_OFFSET_NB_MES; }
 }
 
+void MPU6050::scan()
+{
+	printf("Scanning I2C bus...\n");
+
+    for (uint8_t addr = 0x08; addr <= 0x77; addr++) {
+        uint8_t dummy;
+
+        int result = i2c_read_blocking(
+            IMU_INST,
+            addr,
+            &dummy,
+            1,
+            false
+        );
+
+        if (result >= 0) {
+            printf("Found device at 0x%02X\n", addr);
+        }
+    }
+
+	printf("Scan complete.\n");
+}
+
 bool MPU6050::test()
 {
 	byte buf;
-	i2c_write_blocking(IMU_INST, devAddr, &REG_DEV_ID, 1, true); 
-	i2c_read_blocking(IMU_INST, devAddr, &buf, 1, false);
+	int result = i2c_write_blocking(IMU_INST, devAddr, &REG_DEV_ID, 1, true);
+	printf("test write result:%d\n", result);
+
+	result = i2c_read_blocking(IMU_INST, devAddr, &buf, 1, false);
+	printf("test read result:%d\n", result);
+
 	return (buf == IMU_ID);
 }
 

@@ -19,6 +19,7 @@ public:
 	byte init(byte dev_addr = 0x68, bool init_i2c = true, int gyro_config = 1, int accel_config = 0);
 	void calcOffsets(bool accel_x = true, bool accel_y = true, bool accel_z = true, bool gyro_x = true, bool gyro_y = true, bool gyro_z = true);
 
+	void scan();
 	bool test();
 	byte setGyroConfig(int config_num);
 	byte setAccelConfig(int config_num);
