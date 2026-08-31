@@ -11,14 +11,29 @@ uart_inst_t* UART_ID = uart0;
 const uint8_t UART_TX_PIN = 16;
 const uint8_t UART_RX_PIN = 17;
 const byte IMU_DOME_ID = 0x69;
+const byte IMU_BASE_ID = 0x68;
 const byte IMU_I2C = 1;
 const byte IMU_SDA = 10;
 const byte IMU_SCL = 11;
-float fbDemand = 0;
-float lrDemand = 0;
-float spinDemand = 0;
-float fbActual = 0;
-float lrActual = 0;
+
+// Front to back axis
+float fbDemand = 0.0f;
+float fbImuActual = 0.0f;
+float fbServoActual = 0.0f;
+float fbError = 0.0f;
+float fbServoDemand = 0.0f;
+
+// Left to right axis
+float lrDemand = 0.0f;
+float lrImuActual = 0.0f;
+float lrServoActual = 0.0f;
+float lrError = 0.0f;
+float lrServoDemand = 0.0f;
+
+// Spin axis
+float spinDemand = 0.0f;
+float spinVelocityDemand = 0.0f;
+
 
 void dataHandler(uint8_t* packet, uint16_t size)
 {
@@ -75,38 +90,99 @@ int main()
 
 	MPU6050 imu;
 	imu.setPorts(IMU_I2C, IMU_SDA, IMU_SCL);
-	imu.init(IMU_DOME_ID);
+	imu.init(IMU_BASE_ID);
 	imu.calcOffsets(false, false, true, true, true, true);   // Stabilises sensor
 	imu.setInclinationOffsets(1.5, 0.8, 0.0);				 // Accounts for error in mounting
-	if (!imu.test()) abort("IMU_DOME not found");
+	if (!imu.test()) abort("IMU_BASE not found");
+
+	RunningAverage lrSmoothing(10);
 
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
 	printf("Initialisation complete!\n");
+
+	lrServo.setPositionOffset(20.0f);
+	fbServo.setPositionOffset(-30.0f);
 
 	lrServo.enable();
 	fbServo.enable();
 	spinServo.enable();
 
-	success = lrServo.setPosition(0.0);
-	success &= fbServo.setPosition(-30.0);
-	success &= spinServo.setVelocity(-90.0f);
+	success = lrServo.setPosition(0.0f);
+	success &= fbServo.setPosition(0.0f);
+	success &= spinServo.setPosition(0.0f);
 	if (!success) abort("Failed to home servos!");
+
+	sleep_ms(1000);
+
+	std::string msg = "";
+	uint32_t then = 0;
+	uint32_t now = 0;
+	uint32_t dt = 0;
+	uint32_t lastPrint = 0;
+	uint32_t lastBlink = 0;
+	bool ledState = 1;
 
 	nicePrint("Starting loop...");
 	while (true)
 	{
+		then = now;
+		now = to_ms_since_boot(get_absolute_time());
+		dt = (now - then);
+
 		imu.update();
-		fbActual = imu.inclination().x;
-		lrActual = imu.inclination().y;
+		lrImuActual = -imu.inclination().y;
+		fbImuActual = imu.inclination().x;
 
-		float servoPos = NAN;
-		success = spinServo.update();
-		success &= spinServo.getPosition(servoPos);
-		if (!success) printf("Failed to update servo!\n");		
+		if (lrServo.update())
+		{
+		// 	lrError = lrDemand - lrImuActual;
+		 	success = lrServo.getPosition(lrServoActual);
+			if (success)
+			{
+				//lrServoDemand = lrError * MAX_VELOCITY * (float(dt)/1000) * 0.5f;
+				lrServoDemand = lrImuActual * 4;
+				lrError = abs(lrServoActual - lrServoDemand);
+				if (lrError > 2) success = lrServo.setPosition(lrServoDemand);
+			}
+			if (!success) msg += "Failed to set lrServo postition";
+		}
+		else 
+		{
+			msg += "Failed to update lrServo!";
+		}
 
-		printf("%f %f %.1f\n", fbActual, lrActual, servoPos);
-		sleep_ms(1);
+		if (fbServo.update())
+		{
+			fbError = fbDemand - fbImuActual;
+			success = fbServo.getPosition(fbServoActual);
+			if (success)
+			{
+				fbServoDemand = fbError * MAX_VELOCITY * (float(dt)/1000) * 0.5f;
+				//success = fbServo.setPosition(fbServoActual + fbServoDemand);
+			}
+			if (!success) msg += "Failed to set fbServo postition";
+		}
+		else 
+		{
+			msg += "Failed to update fbServo!";
+		}
+
+		if (now - lastPrint > 100)
+		{
+			//printf("%f %f %f %s\n", fbImuActual, fbError, fbServoDemand, msg.c_str());
+			printf("%f %f %s\n", lrServoActual, lrImuActual, msg.c_str());
+			msg =  "";
+			lastPrint = now;
+		}
+
+		if (now - lastBlink > 100)
+		{
+			ledState = !ledState;
+			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, ledState);
+			lastBlink = now;
+		}
 	}
 
 	finish();
+	return 0;
 }
