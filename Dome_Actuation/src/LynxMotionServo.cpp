@@ -2,7 +2,6 @@
 #include "LynxMotionPort.h"
 #include "Common.h"
 #include "pico/stdlib.h"
-#include <math.h>
 #include <stdio.h>
 
 const bool DEBUG_MSG = false;
@@ -12,6 +11,7 @@ LynxMotionServo::LynxMotionServo(LynxMotionPort& port, int servoId) :
 	servoId(servoId),
 	angularRange(NAN),
 	rangeStatus(RangeStatus::UNKNOWN),
+	positionOffset(0.0f),
 	position(NAN),
 	enabled(false),
 	velocityDemand(0.0f)
@@ -33,10 +33,10 @@ bool LynxMotionServo::update()
 {
 	if (!checkRange()) return false;
 
-	if (enabled)
-	{
-		if (!enforceAngularRange()) return false;
-	}
+	// if (enabled)
+	// {
+	// 	if (!enforceAngularRange()) return false;
+	// }
 
 	return true;
 }
@@ -54,6 +54,11 @@ void LynxMotionServo::disable()
 	enabled = false;
 }
 
+void LynxMotionServo::setPositionOffset(float angleDeg)
+{
+	positionOffset = angleDeg;
+}
+
 bool LynxMotionServo::setPosition(float angleDeg)
 {
 	if (!enabled) return false;
@@ -61,7 +66,7 @@ bool LynxMotionServo::setPosition(float angleDeg)
 	if (angleDeg > angularRange) angleDeg = angularRange;
 	if (angleDeg < -angularRange) angleDeg = -angularRange;
 
-	int angleValue = angleDeg * 10;
+	int angleValue = (angleDeg + positionOffset) * 10;
 	writeValue(POSITION_DEG, angleValue);
 	return true;
 }
@@ -192,7 +197,7 @@ bool LynxMotionServo::readPosition(float &result)
 {
 	int value;
 	if (!readValue(POSITION_DEG, value)) return false;
-	result = float(value) / 10;
+	result = (float(value) / 10) - positionOffset;
 	return true;
 }
 
@@ -226,7 +231,16 @@ bool LynxMotionServo::readValue(std::string variable, int& value)
 
 	int start = 3 + variable.length();
 	int length = reply.length() - (start + 1);
-	value = std::stoi(reply.substr(start, length));
+	if (length == 0) return false;
+
+	std::string valueStr = reply.substr(start, length);
+	if (!isNumber(valueStr))
+	{
+		if (DEBUG_MSG) nicePrint("NOT A NUMBER!");
+		return false;
+	}
+
+	value = std::stoi(valueStr);
 	return true;
 }
 

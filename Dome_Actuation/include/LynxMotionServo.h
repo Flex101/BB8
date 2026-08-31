@@ -16,6 +16,7 @@ public:
 	void enable();
 	void disable();
 
+	void setPositionOffset(float angleDeg);
 	bool setPosition(float angleDeg);
 	bool getPosition(float& angleDeg);
 	bool setVelocity(float angleDegSec);
@@ -39,6 +40,7 @@ private:
 	int servoId;
 	float angularRange;
 	RangeStatus::Enum rangeStatus;
+	float positionOffset;
 	float position;
 	bool enabled;
 
