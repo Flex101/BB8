@@ -9,6 +9,9 @@
 #include "hardware/watchdog.h"
 #include <stdio.h>
 
+const int maxSpeed = 30;			// Up to 99
+const int speedDamping = 50;		// Up to 99
+
 float rollAxisValueBuff = 0.0;
 uint32_t lastUpdate_Comms = 0;
 
@@ -24,24 +27,30 @@ void abort(const std::string& msg)
 {
 	printf("%s\n", msg.c_str());
 
-	while (true)
-	{
-		sleep_ms(250);
-		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
-		sleep_ms(250);
-		cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
-	}
+	watchdog_reboot(0, 0, 1000);
+
+	while (true) {
+        tight_loop_contents();
+    }
 }
 
 int main()
 {
 	stdio_init_all();
+	sleep_ms(3000);
 
 	if (watchdog_caused_reboot()) {
         printf("WATCHDOG RESET!!!\n");
     }
 
-	sleep_ms(3000);
+	ServoController servoController;
+	bool success = servoController.init();
+	success &= servoController.writeVel(0.0f);
+	success &= servoController.setMaxSpeed(maxSpeed);
+	success &= servoController.setSpeedDamping(speedDamping);
+	success &= servoController.setPGain(3000);
+	if (!success) abort("Failed to initialise ServoController");
+	printf("ServoController initialised.\n");
 
 	if (cyw43_arch_init()) abort("Failed to initialise CYW43 driver.");
 	printf("CYW43 driver initialised.\n");
@@ -53,11 +62,6 @@ int main()
 	printf("Delay start...\n");
 	sleep_ms(1000);
 
-	ServoController servoController;
-	bool success = servoController.init();
-	if (!success) abort("Failed to initialise ServoController");
-	printf("ServoController initialised.\n");
-	
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
 	printf("Initialisation complete!\n");
 
@@ -78,6 +82,7 @@ int main()
 	{	
 		now = to_ms_since_boot(get_absolute_time());
 		
+		//printf("BT\n");
 		btController.poll();
 		rollAxisValue = rollAxisValueBuff;
 
@@ -86,17 +91,23 @@ int main()
 			rollAxisValue = 0.0;
 		}
 
+		//printf("MOTOR\n");
 		if ((now - lastUpdate_Servo) > 300)
 		{
-			servoController.readPos(encoderPos);
+			//servoController.readPos(encoderPos);
 			// demandPos += (axisValue * 50);
 			// servoController.writePos(demandPos);
 
-			servoController.writeVel(rollAxisValue * 99);
+			if (rollAxisValue >  1.0) rollAxisValue =  1.0;
+			if (rollAxisValue < -1.0) rollAxisValue = -1.0;
+
+			// Must be wreckless until parsing is improved
+			servoController.writeVel(rollAxisValue * maxSpeed);
 
 			lastUpdate_Servo = now;
 		}
 
+		//printf("PRINT\n");
 		if ((now - lastUpdate_Print) > 100)
 		{
 			//printf("Encoder: %d, Angle: %f, Accel: %f\n", encoderPos, imu_angle, imu_acc);
