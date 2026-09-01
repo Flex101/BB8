@@ -22,46 +22,99 @@ bool ServoController::init()
     gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
 	uart_set_hw_flow(UART_ID, false, false);
 	uart_set_format(UART_ID, DATA_BITS, STOP_BITS, PARITY);
-	uart_set_fifo_enabled(UART_ID, false);
+	uart_set_fifo_enabled(UART_ID, true);
 
-
-	// Reset encoder position
-	uart_puts(UART_ID, "P0\r\n");
-	std::string expected = "P0\r\n";
 	std::string reply;
-	bool success = readLine(reply);
-	nicePrint(reply);
-	if (!success) return false;
-	if (reply != expected) return false;
+	std::string expected = "";
+	bool success = false;
 
+	
+	// Reset encoder position
+	// uart_puts(UART_ID, "P0\r\n");
+	// expected = "P0\r\n";
+	// success = readLine(reply);
+	// nicePrint(reply);
+	// if (!success) return false;
+	// if (reply != expected) return false;
+
+	printf("Clearing buffer...\n");
+	clearBuffer(reply);
+	//nicePrint(reply);
+	printf("Done\n");
 
 	// Reset gains incase they got corrupted
 	uart_puts(UART_ID, "Y\r\n");
-	expected = "Y";
+	expected = "Y\r\n:";
 	success = readLine(reply);
-	nicePrint(reply);
-	if (reply != expected) return false;
 
+	printf("RESET GAINS REPLY: ");
+	nicePrint(reply);
+
+	if (reply != expected) return false;
 	return true;
 }
 
-bool ServoController::setMaxSpeed(int speed)
+bool ServoController::setMaxSpeed(int value)
 {
-	if (speed > 255) return false;
-	if (speed < 0) return false;
+	if (value > 255) return false;
+	if (value < 0) return false;
 
-	std::string msg = "M" + std::to_string(speed) + "\r\n";
+	std::string msg = "M";
+	msg += std::to_string(value);
+	msg += "\r\n";
+
 	uart_puts(UART_ID, msg.c_str());
 
-	std::string expected = msg;
-	std::string reply;
+	std::string reply = "";
 	bool success = readLine(reply);
-	nicePrint(success);
-	nicePrint(reply);
-	if (!success) return false;
 	
+	printf("SET MAX SPEED REPLY: ");
+	nicePrint(reply);
 
-	return (reply == expected);
+	return success;
+}
+
+bool ServoController::setSpeedDamping(int value)
+{
+	if (value > 255) return false;
+	if (value < 0) return false;
+
+	std::string msg = "D";
+	msg += std::to_string(value);
+	msg += "\r\n";
+
+	uart_puts(UART_ID, msg.c_str());
+
+	std::string reply = "";
+	bool success = readLine(reply);
+	
+	printf("SET SPEED DAMPING REPLY: ");
+	nicePrint(reply);
+
+	return success;
+}
+
+bool ServoController::setPGain(int value)
+{
+	// if (value > 255) return false;
+	// if (value < 0) return false;
+
+	std::string msg = "B";
+	msg += std::to_string(value);
+	msg += "\r\n";
+
+	printf("SET P GAIN: ");
+	nicePrint(msg);
+
+	uart_puts(UART_ID, msg.c_str());
+
+	std::string reply = "";
+	bool success = readLine(reply);
+	
+	printf("SET P GAIN REPLY: ");
+	nicePrint(reply);
+
+	return success;
 }
 
 bool ServoController::readPos(int& result)
@@ -106,30 +159,56 @@ bool ServoController::writeVel(int demand)
 
 	uart_puts(UART_ID, msg.c_str());
 
-	std::string reply;
+	// std::string reply;
+	// bool success = false;
+	// while (true)
+	// {
+	// 	success = readLine(reply);
+	// 	if (!success) return false;
+	// 	if (reply[0] == 'S') return true;
+	// }
+	// //printf("WRITE REPLY: %s\n", reply.c_str());
+
+	std::string reply = "";
 	bool success = readLine(reply);
-	//printf("WRITE REPLY: %s\n", reply.c_str());
+	
+	printf("SET SPEED REPLY: ");
+	nicePrint(reply);
 
 	return success;
 }
 
-bool ServoController::readLine(std::string& result)
+void ServoController::clearBuffer(std::string& result)
 {
-	std::string reply;
+	std::string buffer = "";
 
-	uint32_t start = to_ms_since_boot(get_absolute_time());
 	while(true)
 	{
+		if (!uart_is_readable_within_us(UART_ID, 2000)) break;
+
 		char ch = uart_getc(UART_ID);
+		buffer += char(ch);
+	}
 
-		if (ch == ':') break;
-		reply += char(ch);
+	result = buffer;
+}
 
-		if (!uart_is_readable_within_us(UART_ID, 2000))
+bool ServoController::readLine(std::string& result)
+{
+	std::string reply = "";
+
+	//uint32_t start = to_ms_since_boot(get_absolute_time());
+	while(true)
+	{
+		if (!uart_is_readable_within_us(UART_ID, 200*1000))
 		{
 			result = reply;
 			return false;
 		}
+
+		char ch = uart_getc(UART_ID);
+		reply += char(ch);
+		if (ch == ':') break;
 	}
 
 	result = reply;
