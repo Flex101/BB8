@@ -35,6 +35,18 @@ class BallMixer:
 
 	def getTilt(self) -> float:
 		x = self.ballController.getX()
+
+		deadzone = 0.25
+
+		# Dead zone
+		if abs(x < deadzone):
+			return 0
+
+		if (x > 0):
+			x = (x - deadzone) / (1 - deadzone)
+		if (x < 0):
+			x = (x + deadzone) / (1 - deadzone)
+
 		return x
 
 
