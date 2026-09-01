@@ -39,7 +39,7 @@ class BallMixer:
 		deadzone = 0.25
 
 		# Dead zone
-		if abs(x < deadzone):
+		if abs(x) < deadzone:
 			return 0
 
 		# Rescale live zone between 0 and 0.5 (tilt controller caps at 0.5)
