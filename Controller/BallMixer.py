@@ -42,10 +42,11 @@ class BallMixer:
 		if abs(x < deadzone):
 			return 0
 
+		# Rescale live zone between 0 and 0.5 (tilt controller caps at 0.5)
 		if (x > 0):
-			x = (x - deadzone) / (1 - deadzone)
+			x = (x - deadzone) / ((1 - deadzone) * 2)
 		if (x < 0):
-			x = (x + deadzone) / (1 - deadzone)
+			x = (x + deadzone) / ((1 - deadzone) * 2)
 
 		return x
 
