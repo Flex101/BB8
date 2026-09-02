@@ -189,12 +189,22 @@ try:
 				print(domeController.button_data[i], end=' ')
 			print()
 
-		roll = mixer.getRoll()
-		tilt = mixer.getTilt()
 
-		# Use shoulder button as roll enable
-		if (ballController.getShoulderButton() == False):
+		print(ballController.getShoulderTrigger())
+
+		# Use shoulder trigger as roll and tilt enable
+		if (ballController.getShoulderTrigger() > 0.5):
+			roll = mixer.getRoll()
+			tilt = mixer.getTilt()
+
+		# Use shoulder button as tilt enable
+		elif (ballController.getShoulderButton() == True):
+			tilt = mixer.getTilt()
+
+		else:
 			roll = 0.0
+			tilt = 0.0
+			
 
 		packet = buildPacket(roll)
 		serialPortRoll.write(packet)

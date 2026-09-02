@@ -13,7 +13,7 @@ class GameController:
 		self.controller.init()
 		self.button_data = [False] * self.controller.get_numbuttons()
 		self.hat_data = [(0, 0)] * self.controller.get_numhats()
-		self.axis_data = [0.0] * 2 #self.controller.get_numaxes()
+		self.axis_data = [0.0] * 3 #self.controller.get_numaxes()
 
 	def update(self):
 		for i in range(len(self.axis_data)):
@@ -29,3 +29,6 @@ class GameController:
 	
 	def getShoulderButton(self) -> bool:
 		return self.button_data[10]
+
+	def getShoulderTrigger(self) -> float:
+		return self.axis_data[3]
