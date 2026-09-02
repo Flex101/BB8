@@ -195,6 +195,8 @@ try:
 
 	print("Running...")
 
+	spinAngle = 0.0
+
 	while not terminate:
 		pygame.event.get()
 		ballController.update()
@@ -249,7 +251,12 @@ try:
 		fbAngle = domeController.getY() * 20
 		lrAngle = domeController.getX() * 20
 
-		packet = buildDomePacket(domeControlMode.value, fbAngle, lrAngle, 0.0)
+		if (domeController.getLeftDPad() == True):
+			spinAngle += 0.1
+		elif (domeController.getRightDPad() == True):
+			spinAngle -= 0.1
+
+		packet = buildDomePacket(domeControlMode.value, fbAngle, lrAngle, spinAngle)
 		serialPortDome.write(packet)
 
 		time.sleep(0.01)
