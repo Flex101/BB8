@@ -246,7 +246,10 @@ try:
 		else:
 			domeControlMode = DomeControlMode.DISABLED
 
-		packet = buildDomePacket(domeControlMode.value, domeController.getY(), domeController.getX(), 0.0)
+		fbAngle = domeController.getY() * 20
+		lrAngle = domeController.getX() * 20
+
+		packet = buildDomePacket(domeControlMode.value, fbAngle, lrAngle, 0.0)
 		serialPortDome.write(packet)
 
 		time.sleep(0.01)
