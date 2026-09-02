@@ -246,7 +246,7 @@ try:
 		else:
 			domeControlMode = DomeControlMode.DISABLED
 
-		packet = buildDomePacket(domeControlMode, domeController.getY(), domeController.getX(), 0.0)
+		packet = buildDomePacket(domeControlMode.value, domeController.getY(), domeController.getX(), 0.0)
 		serialPortDome.write(packet)
 
 		time.sleep(0.01)
