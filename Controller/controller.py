@@ -190,7 +190,7 @@ try:
 			print()
 
 
-		print(ballController.getShoulderTrigger())
+		ballController.print()
 
 		# Use shoulder trigger as roll and tilt enable
 		if (ballController.getShoulderTrigger() == True):
