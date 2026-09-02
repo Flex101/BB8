@@ -193,7 +193,7 @@ try:
 		print(ballController.getShoulderTrigger())
 
 		# Use shoulder trigger as roll and tilt enable
-		if (ballController.getShoulderTrigger() > 0.5):
+		if (ballController.getShoulderTrigger() == True):
 			roll = mixer.getRoll()
 			tilt = mixer.getTilt()
 

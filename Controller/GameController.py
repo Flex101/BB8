@@ -30,5 +30,5 @@ class GameController:
 	def getShoulderButton(self) -> bool:
 		return self.button_data[10]
 
-	def getShoulderTrigger(self) -> float:
-		return self.axis_data[3]
+	def getShoulderTrigger(self) -> bool:
+		return self.button_data[11]
