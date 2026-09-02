@@ -241,6 +241,11 @@ try:
 		if (domeController.getShoulderTrigger() == True):
 			domeControlMode = DomeControlMode.MANUAL
 
+			if (domeController.getLeftDPad() == True):
+				spinAngle += 1
+			elif (domeController.getRightDPad() == True):
+				spinAngle -= 1
+
 		# Use shoulder button as auto mode
 		elif (domeController.getShoulderButton() == True):
 			domeControlMode = DomeControlMode.AUTO
@@ -250,11 +255,6 @@ try:
 
 		fbAngle = domeController.getY() * 20
 		lrAngle = domeController.getX() * 20
-
-		if (domeController.getLeftDPad() == True):
-			spinAngle += 0.1
-		elif (domeController.getRightDPad() == True):
-			spinAngle -= 0.1
 
 		packet = buildDomePacket(domeControlMode.value, fbAngle, lrAngle, spinAngle)
 		serialPortDome.write(packet)
