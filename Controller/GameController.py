@@ -31,7 +31,7 @@ class GameController:
 		return self.button_data[10]
 
 	def getShoulderTrigger(self) -> bool:
-		return self.button_data[9]
+		return self.button_data[8]
 
 	def printButtons(self):
 		for button in self.button_data:
