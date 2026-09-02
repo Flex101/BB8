@@ -190,8 +190,6 @@ try:
 			print()
 
 
-		ballController.print()
-
 		# Use shoulder trigger as roll and tilt enable
 		if (ballController.getShoulderTrigger() == True):
 			roll = mixer.getRoll()
