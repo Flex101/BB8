@@ -22,6 +22,11 @@ terminate = False
 serialPortRoll = None
 serialPortTilt = None
 
+class DomeControlMode(Enum):
+	DISABLED = 0
+	AUTO = 1
+	MANUAL = 2
+
 class PortState(Enum):
 	UNKNOWN = 0
 	CONFIGURING = 1
@@ -84,6 +89,15 @@ def filterAxis(value:float, center:float, deadzone:float, invert:bool):
 def buildPacket(value:float):
 	packet = bytearray()
 	packet += struct.pack("f", value)
+	return packet
+
+
+def buildDomePacket(controlMode:int, fbValue:float, lrValue:float, spinValue:float):
+	packet = bytearray()
+	packet += struct.pack("i", controlMode)
+	packet += struct.pack("f", fbValue)
+	packet += struct.pack("f", lrValue)
+	packet += struct.pack("f", spinValue)
 	return packet
 
 try:
@@ -220,6 +234,21 @@ try:
 		serialPortRoll.write(packet)
 		packet = buildPacket(tilt)
 		serialPortTilt.write(packet)
+
+		# Use shoulder trigger as manual mode
+		if (domeController.getShoulderTrigger() == True):
+			domeControlMode = DomeControlMode.MANUAL
+
+		# Use shoulder button as auto mode
+		elif (domeController.getShoulderButton() == True):
+			domeControlMode = DomeControlMode.AUTO
+
+		else:
+			domeControlMode = DomeControlMode.DISABLED
+
+		packet = buildDomePacket(domeControlMode, domeController.getY(), domeController.getX(), 0.0)
+		serialPortDome.write(packet)
+
 		time.sleep(0.01)
 
 	print("Terminated cleanly")
