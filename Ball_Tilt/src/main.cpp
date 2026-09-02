@@ -124,6 +124,9 @@ int main()
 			actual = (pot.getScale() - 0.5f) * 2;
 			dt = float(millis() - prevMillis);
 			demand = pid.calc(target, actual, dt);
+
+
+			
 			motorDriver.setSpeed(-demand);
 
 			// Safety

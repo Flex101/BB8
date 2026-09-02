@@ -9,8 +9,9 @@
 #include "hardware/watchdog.h"
 #include <stdio.h>
 
-const int maxSpeed = 30;			// Up to 99
-const int speedDamping = 50;		// Up to 99
+const int maxSpeed = 50;			// Up to 255
+const int speedDamping = 100;		// Up to 255
+const int pGain = 20000;			// Up to 32767
 
 float rollAxisValueBuff = 0.0;
 uint32_t lastUpdate_Comms = 0;
@@ -48,7 +49,7 @@ int main()
 	success &= servoController.writeVel(0.0f);
 	success &= servoController.setMaxSpeed(maxSpeed);
 	success &= servoController.setSpeedDamping(speedDamping);
-	success &= servoController.setPGain(3000);
+	success &= servoController.setPGain(pGain);
 	if (!success) abort("Failed to initialise ServoController");
 	printf("ServoController initialised.\n");
 

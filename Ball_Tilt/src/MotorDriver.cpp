@@ -8,7 +8,7 @@ MotorDriver::MotorDriver(uint pwmPin, uint dirPin) :
 
 void MotorDriver::init()
 {
-	pwm.setPosRange(0,5000); //20000 MAX - DON'T!
+	pwm.setPosRange(0,2500); //20000 MAX - DON'T!
 	pwm.setPosHome(0);
 	pwm.goToPos(0);
 
