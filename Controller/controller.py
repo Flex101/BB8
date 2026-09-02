@@ -31,6 +31,7 @@ class PortState(Enum):
 class RcxBoards:
 	roll = '/dev/rfcomm0'
 	tilt = '/dev/rfcomm1'
+	dome = '/dev/rfcomm2'
 
 class ControllerNames:
 	ball = "PLAYSTATION(R)3 Controller (04:76:6E:99:8D:EF)"
@@ -127,28 +128,34 @@ try:
 	print(f"Looking for RC-X board bound serial ports...")
 	gotRollBoard = os.path.exists(RcxBoards.roll)
 	gotTiltBoard = os.path.exists(RcxBoards.tilt)
+	gotDomeBoard = os.path.exists(RcxBoards.dome)
 	if (gotRollBoard == False):
 		print(f"{YELLOW}Couldn't find roll board bound port.{RESET}")
 	if (gotTiltBoard == False):
 		print(f"{YELLOW}Couldn't find tilt board bound port.{RESET}")
-	if (gotRollBoard == False or gotTiltBoard == False):
+	if (gotDomeBoard == False):
+			print(f"{YELLOW}Couldn't find dome board bound port.{RESET}")
+	if (gotRollBoard == False or gotTiltBoard == False or gotDomeBoard == False):
 		abort()
-	print(f"{GREEN}Found roll and tilt board bound ports.{RESET}")
+	print(f"{GREEN}Found roll, tilt, and dome board bound ports.{RESET}")
 	print(f"")
 
 	mixer = BallMixer(ballController)
 
 	serialPortRoll = serial.Serial(RcxBoards.roll, timeout=1)
 	serialPortTilt = serial.Serial(RcxBoards.tilt, timeout=1)
+	serialPortDome = serial.Serial(RcxBoards.dome, timeout=1)
 
 	rollPortState = PortState.UNKNOWN
 	tiltPortState = PortState.UNKNOWN
+	domePortState = PortState.UNKNOWN
 
 	print("Connecting to RC-X boards...", end="", flush=True)
 
-	while (rollPortState != PortState.CONNECTED) or (tiltPortState != PortState.CONNECTED):
+	while (rollPortState != PortState.CONNECTED) or (tiltPortState != PortState.CONNECTED) or domePortState != PortState.CONNECTED:
 		rollPortState = getPortState(RcxBoards.roll)
 		tiltPortState = getPortState(RcxBoards.tilt)
+		domePortState = getPortState(RcxBoards.dome)
 
 		if (rollPortState == PortState.CLOSED):
 			print("")
@@ -160,11 +167,16 @@ try:
 			print(f"{YELLOW}Failed to connect to tilt board.{RESET}")
 			abort()
 
+		if (domePortState == PortState.CLOSED):
+			print("")
+			print(f"{YELLOW}Failed to connect to dome board.{RESET}")
+			abort()
+
 		print(".", end="", flush=True)
 		time.sleep(0.5)
 
 	print("")
-	print(f"{GREEN}Successfully connected to roll and tilt boards.{RESET}")
+	print(f"{GREEN}Successfully connected to roll, tilt, and dome boards.{RESET}")
 	print("")
 
 	print("Running...")
