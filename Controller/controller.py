@@ -242,9 +242,9 @@ try:
 			domeControlMode = DomeControlMode.MANUAL
 
 			if (domeController.getLeftDPad() == True):
-				spinAngle += 1
+				spinAngle += 3
 			elif (domeController.getRightDPad() == True):
-				spinAngle -= 1
+				spinAngle -= 3
 
 		# Use shoulder button as auto mode
 		elif (domeController.getShoulderButton() == True):
