@@ -5,6 +5,8 @@
 const std::string ID = "ID";
 const std::string ANGULAR_RANGE = "AR";
 const std::string POSITION_DEG = "D";
+const std::string MAX_VELOCITY_DEGSEC = "SD";
+const std::string MAX_VELOCITY_DEGSEC_CONFIG = "CSD";
 const std::string VELOCITY_DEGSEC = "WD";
 const std::string LIMP = "L";
 const std::string HALT_HOLD = "H";

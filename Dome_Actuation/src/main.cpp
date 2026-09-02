@@ -7,6 +7,12 @@
 #include "pico/cyw43_arch.h"
 #include "pico/time.h"
 
+const int cm_disabled = 0;	// 0 = disabled
+const int cm_auto = 1;		// 1 = auto
+const int cm_manual = 2;	// 2 = manual
+int controlModeBuff = 0;
+int controlMode = 0;
+
 uart_inst_t* UART_ID = uart0;
 const uint8_t UART_TX_PIN = 16;
 const uint8_t UART_RX_PIN = 17;
@@ -17,11 +23,16 @@ const byte IMU_SDA = 10;
 const byte IMU_SCL = 11;
 
 // Front to back axis
-float fbDemand = 0.0f;
+float fbControlValueBuff = 0.0f;
+float fbControlValue = 0.0f;
 float fbImuActual = 0.0f;
-float fbServoActual = 0.0f;
-float fbError = 0.0f;
+float fbImuActual_Smooth = 0.0f;
 float fbServoDemand = 0.0f;
+float fbServoDemand_Smooth = 0.0f;
+float fbServoActual = 0.0f;
+const float fbImu2servoScale = 4.0f;
+RunningAverage fbImuSmoothing(50);
+RunningAverage fbDemandSmoothing(50);
 
 // Left to right axis
 float lrControlValueBuff = 0.0f;
@@ -31,23 +42,27 @@ float lrImuActual_Smooth = 0.0f;
 float lrServoDemand = 0.0f;
 float lrServoDemand_Smooth = 0.0f;
 float lrServoActual = 0.0f;
-const float imu2servoScale = 4.0f;
+const float lrImu2servoScale = 4.0f;
 RunningAverage lrImuSmoothing(50);
 RunningAverage lrDemandSmoothing(50);
 
 // Spin axis
-float spinDemand = 0.0f;
+float spinControlValueBuff = 0.0f;
+float spinControlValue = 0.0f;
 float spinVelocityDemand = 0.0f;
 
 
 void dataHandler(uint8_t* packet, uint16_t size)
 {
-	if (size != (3*sizeof(float))) return;
-	memcpy(&fbDemand, packet, sizeof(float));
+	if (size != (sizeof(int) + (3*sizeof(float)))) return;
+
+	memcpy(&controlModeBuff, packet, sizeof(int));
+	packet += sizeof(int);
+	memcpy(&fbControlValueBuff, packet, sizeof(float));
 	packet += sizeof(float);
 	memcpy(&lrControlValueBuff, packet, sizeof(float));
 	packet += sizeof(float);
-	memcpy(&spinDemand, packet, sizeof(float));
+	memcpy(&spinControlValueBuff, packet, sizeof(float));
 	//printf("Axis value: %f\n", axisValue);
 }
 
@@ -84,9 +99,11 @@ int main()
 
 	LynxMotionServo fbServo(servoPort, 0);
 	success &= fbServo.init();
+	success &= fbServo.setMaxVelocity(90.0);
 
 	LynxMotionServo lrServo(servoPort, 1);
 	success &= lrServo.init();
+	success &= lrServo.setMaxVelocity(90.0);
 
 	LynxMotionServo spinServo(servoPort, 2);
 	success &= spinServo.init();
@@ -97,14 +114,14 @@ int main()
 	imu.setPorts(IMU_I2C, IMU_SDA, IMU_SCL);
 	imu.init(IMU_BASE_ID);
 	imu.calcOffsets(false, false, true, true, true, true);   // Stabilises sensor
-	imu.setInclinationOffsets(1.5, 0.8, 0.0);				 // Accounts for error in mounting
+	imu.setInclinationOffsets(-3.6, -2.0, 0.0);				 // Accounts for error in mounting
 	if (!imu.test()) abort("IMU_BASE not found");
 
 	cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
 	printf("Initialisation complete!\n");
 
-	lrServo.setPositionOffset(20.0f);
-	fbServo.setPositionOffset(-30.0f);
+	lrServo.setPositionOffset(7.0f);		// Positive = Right
+	fbServo.setPositionOffset(-45.0f);		// Positive = Forward
 
 	lrServo.enable();
 	fbServo.enable();
@@ -134,31 +151,43 @@ int main()
 
 		imu.update();
 		lrImuActual = -imu.inclination().y;
-		fbImuActual = imu.inclination().x;
+		fbImuActual = -imu.inclination().x;
 
 		lrImuSmoothing.append(lrImuActual);
+		fbImuSmoothing.append(fbImuActual);
+
+		controlMode = controlModeBuff;
 
 		if (lrServo.update())
 		{
-		// 	lrError = lrDemand - lrImuActual;
 		 	success = lrServo.getPosition(lrServoActual);
 			if (success)
 			{
-				// lrServoDemand = lrImuActual * 4;
-				// lrError = abs(lrServoActual - lrServoDemand);
-				// if (lrError > 2) success = lrServo.setPosition(lrServoDemand);
 
 				if (lrImuSmoothing.isFull())
 				{
 					lrImuActual_Smooth = lrImuSmoothing.getAverage();
-					lrServoDemand = lrImuActual_Smooth * imu2servoScale;
+					lrServoDemand = lrImuActual_Smooth * lrImu2servoScale;
 					lrDemandSmoothing.append(lrServoDemand);
 				}
 
 				if (lrDemandSmoothing.isFull())
 				{
 					lrServoDemand_Smooth = lrDemandSmoothing.getAverage();
-					success = lrServo.setPosition(lrServoDemand_Smooth);
+
+					if (controlMode == cm_auto)
+					{
+						success = lrServo.setPosition(lrServoDemand_Smooth);
+					}
+					else if (controlMode == cm_manual)
+					{
+						lrControlValue = lrControlValueBuff;
+						success = lrServo.setPosition(lrControlValue * lrImu2servoScale);
+					}
+					else
+					{
+						success = lrServo.setPosition(0.0f);
+					}
 				}
 			}
 			if (!success) msg += "Failed to set lrServo postition";
@@ -170,12 +199,35 @@ int main()
 
 		if (fbServo.update())
 		{
-			fbError = fbDemand - fbImuActual;
 			success = fbServo.getPosition(fbServoActual);
 			if (success)
 			{
-				fbServoDemand = fbError * MAX_VELOCITY * (float(dt)/1000) * 0.5f;
-				//success = fbServo.setPosition(fbServoActual + fbServoDemand);
+
+				if (fbImuSmoothing.isFull())
+				{
+					fbImuActual_Smooth = fbImuSmoothing.getAverage();
+					fbServoDemand = fbImuActual_Smooth * fbImu2servoScale;
+					fbDemandSmoothing.append(fbServoDemand);
+				}
+
+				if (fbDemandSmoothing.isFull())
+				{
+					fbServoDemand_Smooth = fbDemandSmoothing.getAverage();
+
+					if (controlMode == cm_auto)
+					{
+						success = fbServo.setPosition(fbServoDemand_Smooth);
+					}
+					else if (controlMode == cm_manual)
+					{
+						fbControlValue = fbControlValueBuff;
+						success = fbServo.setPosition(fbControlValue * fbImu2servoScale);
+					}
+					else
+					{
+						success = fbServo.setPosition(0.0f);
+					}
+				}
 			}
 			if (!success) msg += "Failed to set fbServo postition";
 		}
@@ -184,15 +236,25 @@ int main()
 			msg += "Failed to update fbServo!";
 		}
 
-		if (now - lastPrint > 100)
+		if (spinServo.update())
 		{
-			//printf("%f %f %f %s\n", fbImuActual, fbError, fbServoDemand, msg.c_str());
-			printf("%f %f %f %s\n", lrImuActual_Smooth, lrServoDemand_Smooth, lrServoActual, msg.c_str());
+			if (controlMode == cm_manual)
+			{
+				spinControlValue = spinControlValueBuff;
+				success = spinServo.setPosition(spinControlValue);
+			}
+		}
+
+		if ((now - lastPrint) > 100)
+		{
+			//printf("%f %f %f %s\n", lrImuActual_Smooth, lrServoDemand_Smooth, lrServoActual, msg.c_str());
+			//printf("%f %f %f %s\n", fbImuActual_Smooth, fbServoDemand_Smooth, fbServoActual, msg.c_str());
+			printf("%d\n", controlMode);
 			msg =  "";
 			lastPrint = now;
 		}
 
-		if (now - lastBlink > 100)
+		if ((now - lastBlink) > 100)
 		{
 			ledState = !ledState;
 			cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, ledState);

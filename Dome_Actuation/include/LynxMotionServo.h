@@ -19,6 +19,7 @@ public:
 	void setPositionOffset(float angleDeg);
 	bool setPosition(float angleDeg);
 	bool getPosition(float& angleDeg);
+	bool setMaxVelocity(float angleDegSec);
 	bool setVelocity(float angleDegSec);
 
 protected:

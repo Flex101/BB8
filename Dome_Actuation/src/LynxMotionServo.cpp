@@ -78,6 +78,16 @@ bool LynxMotionServo::getPosition(float& angleDeg)
 	return true;
 }
 
+bool LynxMotionServo::setMaxVelocity(float angleDegSec)
+{
+	// Trim within servo limits
+	if (angleDegSec > MAX_VELOCITY) angleDegSec = MAX_VELOCITY;
+	if (angleDegSec < -MAX_VELOCITY) angleDegSec = -MAX_VELOCITY;
+
+	writeValue(MAX_VELOCITY_DEGSEC, angleDegSec * 10);
+	return true;
+}
+
 bool LynxMotionServo::setVelocity(float angleDegSec)
 {
 	if (!enabled) return false;
